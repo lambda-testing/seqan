@@ -123,6 +123,8 @@ struct DefaultPrefixOrder
  *
  * @tparam TSpec The specializing size type, defaults to <tt>size_t</tt>.
  *
+ * @section Remarks
+ * 
  * This class implement comparator objects that perform (lexical) comparisons between two sequences.  The result of the
  * comparison is stored in the data members of the instance and can be accessed by some functions, for example @link
  * Lexical#isLess @endlink or @link Lexical#isEqual @endlink.
@@ -289,6 +291,8 @@ SEQAN_CHECKPOINT
  * @tparam T Type for which the comparator type is to be determined.
  * 
  * @return Type the comparator type.
+ * 
+ * @section Remarks
  * 
  * Comparators are objects that can be used to compare other objects and store the result of comparisons.
  */
@@ -909,6 +913,8 @@ SEQAN_CHECKPOINT
  * 
  * @return bool <tt>true</tt> if <tt>left</tt> is a prefix of<tt>right</tt>, <tt>false</tt> otherwise.
  *
+ * @section Remarks
+ *
  * By definition, a sequence is a prefix of itself: <tt>isPrefix("abc", "abc")</tt> is <tt>true</tt>.
  */
 
@@ -965,6 +971,8 @@ SEQAN_CHECKPOINT
  * 
  * @return bool <tt>true</tt> if <tt>left</tt> is a prefix of<tt>right</tt>, <tt>false</tt> otherwise.
  *
+ * @section Remarks
+ *
  * By definition, a sequence is a prefix of itself: <tt>hasPrefix("abc", "abc")</tt> is <tt>true</tt>.
  */
 
@@ -1003,6 +1011,61 @@ SEQAN_CHECKPOINT
     return (_lex.data_compare & (Lexical<TSpec>::RIGHT_IS_PREFIX | Lexical<TSpec>::EQUAL)) != 0;
 }
 
+// ----------------------------------------------------------------------------
+// hasSuffix()
+// ----------------------------------------------------------------------------
+
+/**
+.Function.hasSuffix:
+..cat:Comparisons
+..class:Class.Lexical
+..summary:Test whether a sequence is suffix of another sequence.
+..signature:hasSuffix(left, right)
+..param.left:The first sequence.
+..param.right:The second sequence, the putative suffix.
+...type:Class.Lexical
+..returns:$true$ if $right$ is a suffix of $left$, $false$ otherwise.
+..see:Function.isSuffix
+..remarks:By definition, the whole sequence is a suffix of itself too: $hasSuffix("abc", "abc") == true$.
+..include:seqan/sequence.h
+*/
+
+template <typename TLeft, typename TRight >
+inline bool
+hasSuffix(TLeft const & left,
+          TRight const & right)
+{
+    return (length(right) <= length(left))
+                ? isEqual(suffix(left, length(left)-length(right)), right)
+                : false;
+}
+
+// ----------------------------------------------------------------------------
+// isSuffix()
+// ----------------------------------------------------------------------------
+
+/**
+.Function.isSuffix:
+..cat:Comparisons
+..class:Class.Lexical
+..summary:Test whether a sequence is suffix of another sequence.
+..signature:isSuffix(left, right)
+..param.left:The first sequence, the putative suffix.
+..param.right:The second sequence.
+...type:Class.Lexical
+..returns:$true$ if $left$ is a suffix of $right$, $false$ otherwise.
+..remarks:By definition, the whole sequence is a suffix of itself too: $isSuffix("abc", "abc") == true$.
+..include:seqan/sequence.h
+*/
+
+template <typename TLeft, typename TRight >
+inline bool
+isSuffix(TLeft const & left,
+          TRight const & right)
+{
+    return hasSuffix(right, left);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // lcpLength
 //////////////////////////////////////////////////////////////////////////////
@@ -1021,6 +1084,8 @@ SEQAN_CHECKPOINT
  * 
  * @return TSize The length of the longest common prefix of <tt>left</tt> and <tt>right</tt>.  TSize is the Size type of
  *               the left size type.
+ *
+ * @section Remarks
  *
  * By definition, a sequence is a prefix of itself: <tt>hasPrefix("abc", "abc")</tt> is <tt>true</tt>.
  */

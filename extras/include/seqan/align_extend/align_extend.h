@@ -281,7 +281,7 @@ _extendAlignmentImpl(Align<TStringInfix, TAlignSpec> & align,
     TPos const hEndPos      = positions[2];
     TPos const vEndPos      = positions[3];
 
-    SEQAN_ASSERT_EQ(length(rows(align)), 2);
+    SEQAN_ASSERT_EQ(length(rows(align)), 2u);
     SEQAN_ASSERT_EQ(infix(source(row(align, 0)),
                           beginPosition(row(align, 0)),
                           endPosition(row(align, 0))),

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2006-2014, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,20 +29,20 @@
 // DAMAGE.
 //
 // ==========================================================================
-// Author: Hannes Hauswedell <hauswedell@mi.fu-berlin.de>
+// Author: Hannes Hauswedell <hannes.hauswedell@fu-berlin.de>
 // ==========================================================================
-// Code for Dna(5) to AminoAcid Translation
+// Tests for reduced_aminoacid
 // ==========================================================================
-
-
-#ifndef EXTRAS_INCLUDE_SEQAN_TRANSLATION_H_
-#define EXTRAS_INCLUDE_SEQAN_TRANSLATION_H_
 
 #include <seqan/basic.h>
 #include <seqan/sequence.h>
-#include <seqan/parallel.h>
 
-#include <seqan/translation/translation_tables.h>
-#include <seqan/translation/translation.h>
+#include "test_reduced_aminoacid.h"
 
-#endif
+SEQAN_BEGIN_TESTSUITE(test_reduced_aminoacid)
+{
+    SEQAN_CALL_TEST(test_reduced_aminoacid_cluster_red);
+    SEQAN_CALL_TEST(test_reduced_aminoacid_murphy10);
+
+}
+SEQAN_END_TESTSUITE

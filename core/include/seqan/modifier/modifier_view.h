@@ -281,6 +281,12 @@ public:
     
 #endif
 
+    ModifiedString & operator= (THost & other)
+    {
+        _host = _toPointer(other);
+        return *this;
+    }
+
     template <typename TPos>
     inline typename Reference<ModifiedString>::Type 
     operator[](TPos pos)

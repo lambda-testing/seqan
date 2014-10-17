@@ -342,7 +342,7 @@ struct GetValue<ModifiedIterator<THost, ModView<TFunctor> > > : Value<ModifiedIt
 template <typename THost, typename TFunctor>
 struct Reference<ModifiedIterator<THost, ModView<TFunctor> > >
 {
-    typedef typename Value<ModifiedIterator<THost, ModView<TFunctor> > >::Type & Type;
+    typedef typename Value<ModifiedIterator<THost, ModView<TFunctor> > >::Type Type;
 };
 
 // --------------------------------------------------------------------------
@@ -433,6 +433,24 @@ inline typename GetValue<ModifiedString<THost, ModView<TFunctor> > const>::Type
 getValue(ModifiedString<THost, ModView<TFunctor> > const & me, TPos pos)
 {
     return cargo(me).func(getValue(host(me), pos));
+}
+
+// --------------------------------------------------------------------------
+// Function getValue()                                       [ModifiedString]
+// --------------------------------------------------------------------------
+
+template <typename THost, typename TFunctor, typename TSpec, typename TPos>
+inline typename GetValue<Segment<ModifiedString<THost, ModView<TFunctor> >, TSpec> >::Type
+getValue(Segment<ModifiedString<THost, ModView<TFunctor> >, TSpec> & me, TPos pos)
+{
+    return cargo(me).func(*(begin(me, Standard()) + pos));
+}
+
+template <typename THost, typename TFunctor, typename TSpec, typename TPos>
+inline typename GetValue<Segment<ModifiedString<THost, ModView<TFunctor> >, TSpec> const>::Type
+getValue(Segment<ModifiedString<THost, ModView<TFunctor> >, TSpec> const & me, TPos pos)
+{
+    return cargo(me).func(*(begin(me, Standard()) + pos));
 }
 
 // --------------------------------------------------------------------------

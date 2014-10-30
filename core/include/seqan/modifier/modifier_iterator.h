@@ -637,7 +637,7 @@ atBegin(ModifiedIterator<THost, TSpec> const & me)
 template <typename THost, typename TSpec, typename THost2, typename TSpec2>
 inline bool
 atEnd(ModifiedIterator<THost, TSpec> & me,
-      ModifiedString<THost2, TSpec2> const & cont)
+      ModifiedString<THost2, TSpec2> const & container)
 {
     return atEnd(const_cast<ModifiedIterator<THost, TSpec> const &>(me), container);
 }
@@ -645,7 +645,7 @@ atEnd(ModifiedIterator<THost, TSpec> & me,
 template <typename THost, typename TSpec, typename THost2, typename TSpec2>
 inline bool
 atEnd(ModifiedIterator<THost, TSpec> const & me,
-      ModifiedString<THost2, TSpec2> const & cont)
+      ModifiedString<THost2, TSpec2> const & container)
 {
     return atEnd(host(me), container);
 }

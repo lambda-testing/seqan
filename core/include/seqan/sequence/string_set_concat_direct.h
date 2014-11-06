@@ -106,6 +106,22 @@ public:
         _initStringSetLimits(*this);
     }
 
+#ifdef SEQAN_CXX11_STANDARD
+    StringSet(StringSet const &other) = default;
+    StringSet & operator= (StringSet const &other) = default;
+
+    StringSet(StringSet &&other)
+    {
+        swap(*this, other);
+    }
+
+    StringSet & operator= (StringSet &&other)
+    {
+        swap(*this, other);
+        return *this;
+    }
+#endif
+
     template <typename TOtherString, typename TOtherSpec>
     StringSet(StringSet<TOtherString, TOtherSpec> &other)
     {

@@ -107,8 +107,8 @@ public:
     }
 
 #ifdef SEQAN_CXX11_STANDARD
-    StringSet(StringSet const &other) = default;
-    StringSet & operator= (StringSet const &other) = default;
+    StringSet(StringSet const &) = default;
+    StringSet & operator= (StringSet const &) = default;
 
     StringSet(StringSet &&other)
     {

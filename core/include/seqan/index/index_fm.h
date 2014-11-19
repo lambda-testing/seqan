@@ -465,6 +465,7 @@ inline bool indexCreate(Index<TText, FMIndex<TSpec, TConfig> > & index, FibreSAL
 {
     typedef Index<TText, FMIndex<TSpec, TConfig> >      TIndex;
     typedef typename Fibre<TIndex, FibreTempSA>::Type   TTempSA;
+    typedef typename DefaultIndexCreator<TIndex, FibreSA>::Type  TAlgo;
     typedef typename Size<TIndex>::Type                 TSize;
 
     TText const & text = indexText(index);
@@ -476,7 +477,7 @@ inline bool indexCreate(Index<TText, FMIndex<TSpec, TConfig> > & index, FibreSAL
 
     // Create the full SA.
     resize(tempSA, lengthSum(text), Exact());
-    createSuffixArray(tempSA, text, Skew7());
+    createSuffixArray(tempSA, text, TAlgo());
 
     // Create the LF table.
     createLF(indexLF(index), text, tempSA);

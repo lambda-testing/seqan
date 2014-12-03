@@ -95,15 +95,15 @@ namespace SEQAN_NAMESPACE_MAIN
 		// skip the first <offset> characters
 		template <typename TSize>
 		SuffixLess_(TText &text, TSize offset):
-			_text(text),
-			_offset(offset) {}
+			_offset(offset),
+			_text(text) {}
 		
 		inline bool operator() (TSAValue const a, TSAValue const b) const 
 		{
 			typedef typename Iterator<TString const, Standard>::Type TIter;
 			if (a == b) return false;
-			TIter itA = begin(getValue(_text, getSeqNo(a)), Standard()) + getSeqOffset(a);
-			TIter itB = begin(getValue(_text, getSeqNo(b)), Standard()) + getSeqOffset(b);
+			TIter itA = begin(getValue(_text, getSeqNo(a)), Standard()) + getSeqOffset(a) + _offset;
+			TIter itB = begin(getValue(_text, getSeqNo(b)), Standard()) + getSeqOffset(b) + _offset;
 			TIter itAEnd = end(getValue(_text, getSeqNo(a)), Standard());
 			TIter itBEnd = end(getValue(_text, getSeqNo(b)), Standard());
 			if (itAEnd - itA < itBEnd - itB) {

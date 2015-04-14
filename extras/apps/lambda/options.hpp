@@ -85,6 +85,9 @@ using namespace seqan;
 template <typename TSpec = void>
 using TFMIndex = FMIndex<TSpec>;
 
+/*template <typename TSpec = void>
+using TBidirectionalFMIndex = BidirectionalFMIndex<TSpec>;*/
+
 namespace SEQAN_NAMESPACE_MAIN
 {
 template <typename TText, typename TSpec>
@@ -122,6 +125,29 @@ struct DefaultIndexCreator<Index<TText, FMIndex<SaAdvancedSort<TSpec>, TConfig> 
     typedef SaAdvancedSort<TSpec> Type;
 //     std::function<void(void)> progressCallback;
 };
+
+
+
+//TODO:cpockrandt: falls was nicht klappt, keine ahnung wozu das hier sein soll? hab ich nur kopiert ;)
+/*template <typename TText, typename TSpec, typename TConfig>
+struct Fibre<Index<TText, BidirectionalFMIndex<SaAdvancedSort<TSpec>, TConfig> >, FibreTempSA>
+{
+    typedef Index<TText, BidirectionalFMIndex<SaAdvancedSort<TSpec>, TConfig> >        TIndex_;
+    typedef typename SAValue<TIndex_>::Type                         TSAValue_;
+
+    typedef String<TSAValue_, typename DefaultIndexStringSpec<TText>::Type> Type;
+};
+
+template < typename TText, typename TSpec, typename TConfig>
+struct DefaultIndexCreator<Index<TText, BidirectionalFMIndex<SaAdvancedSort<TSpec>, TConfig> >, FibreSA>
+{
+    typedef SaAdvancedSort<TSpec> Type;
+//     std::function<void(void)> progressCallback;
+};*/
+
+
+
+
 
 // template <typename TText, typename TSpec>
 // static std::function<void(void)>
@@ -1034,9 +1060,9 @@ printOptions(LambdaOptions const & options)
               << " INPUT\n"
               << "  query file:               " << options.queryFile << "\n"
               << "  db file:                  " << options.dbFile << "\n"
-              << "  db index type:            " << (TGH::indexIsFM
+/*              << "  db index type:            " << ((TGH::indexIsFM == 2) ? "BiFM-Index" : ((TGH::indexIsFM == 1)
                                                     ? "FM-Index\n"
-                                                    : "SA-Index\n")
+                                                    : "SA-Index\n"))*/
               << " OUTPUT (file)\n"
               << "  output file:              " << options.output << "\n"
               << "  minimum % identity:       " << options.idCutOff << "\n"

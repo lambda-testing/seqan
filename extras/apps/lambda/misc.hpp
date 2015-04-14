@@ -351,6 +351,22 @@ inline bool indexCreate(Index<TText, FMIndex<TSpec, TConfig> > & index,
     return true;
 }
 
+//TODO:cpockrandt: wenn was nicht funzt, hier nachsehen!
+/*template <typename TText, typename TSpec, typename TConfig, typename TLambda>
+inline bool indexCreate(Index<TText, BidirectionalFMIndex<TSpec, TConfig> > & index,
+                        TText const & text,
+                        FibreSALF const &,
+                        TLambda const & progressCallback)
+{
+	typedef ModifiedString<TText, ModReverse> TRevText;
+	TRevText revText(text);
+
+	// TODO:cpockrandt: progressCallback funzt so nicht, aber erstmal egal!
+    return indexCreate(index.fwd, text, TFibre(), progressCallback)
+    		&& indexCreate(index.rev, revText, TFibre(), progressCallback);
+}*/
+
+
 template <typename TText, typename TSpec, typename TLambda>
 inline bool indexCreate(Index<TText, IndexSa<TSpec> > & index,
                         TText const & text,

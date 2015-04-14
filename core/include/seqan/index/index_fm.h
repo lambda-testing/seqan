@@ -74,7 +74,10 @@ namespace seqan {
  *        default @link FMIndexConfig @endlink object the type of <tt>TSentinelsSpec</tt> is a two level
  *        @link RankDictionary @endlink.
  */
-template <typename TSpec = void>
+struct FMUnidirectional;
+struct FMBidirectional;
+
+template <typename TSpec = void, typename TBidirectional = FMUnidirectional>
 struct FMIndexConfig
 {
     typedef WaveletTree<TSpec>      TValuesSpec;

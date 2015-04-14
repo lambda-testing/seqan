@@ -276,14 +276,21 @@ mainIndexTyped(TRedAlph const & /**/,
     if (!checkIndexSize(translatedSeqs))
         return -1;
 
-    if (options.dbIndexType == 1)
+    if (options.dbIndexType == 2)
     {
         using TIndexSpec = TFMIndex<TIndexSpecSpec>;
         generateIndexAndDump<TIndexSpec,TIndexSpecSpec>(translatedSeqs,
                                                         options,
                                                         TRedAlph(),
                                                         TFormat());
-    } else
+    } else if (options.dbIndexType == 1)
+	{
+		using TIndexSpec = TFMIndex<TIndexSpecSpec>;
+		generateIndexAndDump<TIndexSpec,TIndexSpecSpec>(translatedSeqs,
+														options,
+														TRedAlph(),
+														TFormat());
+	} else
     {
         using TIndexSpec = IndexSa<TIndexSpecSpec>;
         generateIndexAndDump<TIndexSpec,TIndexSpecSpec>(translatedSeqs,

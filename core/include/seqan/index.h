@@ -165,6 +165,14 @@
 #include <seqan/index/index_fm_stree.h>
 
 // ----------------------------------------------------------------------------
+// Bidirectional FM index.
+// ----------------------------------------------------------------------------
+
+#include <seqan/index/index_bifm.h>
+#include <seqan/index/index_bifm_stree.h>
+#include <seqan/index/find_index_bidirectional.h>
+
+// ----------------------------------------------------------------------------
 // Suffix tree algorithms.
 // ----------------------------------------------------------------------------
 

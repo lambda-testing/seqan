@@ -534,7 +534,12 @@ bool goUp(Iter<Index<TText, BidirectionalFMIndex<TOccSpec, TIndexSpec> >, VSTree
 	//return true;
 }
 
-
+template < typename TText, typename TOccSpec, typename TIndexSpec, class TSpec >
+SEQAN_HOST_DEVICE inline typename Infix<typename Fibre<Index<TText, BidirectionalFMIndex<TOccSpec, TIndexSpec> >, FibreSA>::Type const >::Type
+getOccurrences(Iter<Index<TText, BidirectionalFMIndex<TOccSpec, TIndexSpec> >, VSTree<TSpec> > const &it)
+{
+	return getOccurrences(it.fwdIter);
+}
 
 
 

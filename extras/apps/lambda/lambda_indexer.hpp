@@ -374,7 +374,7 @@ convertMaskingFile(uint64_t numberOfSeqs,
 template <typename TIndex, typename TText, typename TFibre>
 inline void
 createIndexActual(TIndex & index,
-                      TText const & text,
+                      TText & text,
                       TFibre const &,
                       SaAdvancedSort<MergeSortTag> const &)
 {
@@ -386,7 +386,7 @@ createIndexActual(TIndex & index,
 template <typename TIndex, typename TText, typename TFibre>
 inline void
 createIndexActual(TIndex & index,
-                      TText const & text,
+                      TText & text,
                       TFibre const &,
                       SaAdvancedSort<QuickSortBucketTag> const &)
 {
@@ -403,7 +403,7 @@ createIndexActual(TIndex & index,
 template <typename TIndex, typename TText, typename TFibre, typename TAlgo>
 inline void
 createIndexActual(TIndex & index,
-                      TText const & text,
+                      TText & text,
                       TFibre const &,
                       TAlgo const &)
 {
@@ -434,10 +434,10 @@ generateIndexAndDump(StringSet<TString, TSpec> & seqs,
                             ModView<FunctorConvert<TransAlph<p>,TRedAlph>>>;
     using TRedSeqsVirt  = StringSet<TRedSeqVirt, Owner<ConcatDirect<>>>;
 
-    static bool constexpr
-    indexIsFM           = std::is_same<TIndexSpec,
-                                       TFMIndex<TIndexSpecSpec>
-                                       >::value;
+    static int constexpr
+    indexIsFM2           = (std::is_same<TIndexSpec, TBidirectionalFMIndex<TIndexSpecSpec> >::value) ? 2 :
+    							((std::is_same<TIndexSpec, TFMIndex<TIndexSpecSpec>>::value) ? 1 :0);
+
     static bool constexpr
     noReduction         = std::is_same<TransAlph<p>, TRedAlph>::value;
 
@@ -451,7 +451,7 @@ generateIndexAndDump(StringSet<TString, TSpec> & seqs,
                             TRedSeqsVirt>::type;    // modview
 
     using TDbIndex      = Index<TRedSeqs, TIndexSpec>;
-    using TFullFibre    = typename std::conditional<indexIsFM,
+    using TFullFibre    = typename std::conditional< (indexIsFM2 > 0),
                                                     FibreSALF,
                                                     FibreSA>::type;
     static bool constexpr
@@ -476,7 +476,7 @@ generateIndexAndDump(StringSet<TString, TSpec> & seqs,
 //     std::cout << "indexIsFM: " << int(indexIsFM) << std::endl;
 
     // FM-Index needs reverse input
-    if (indexIsFM)
+    if (indexIsFM2 > 0)
         reverse(seqs);
 
     TRedSeqsACT redSubjSeqs(seqs);
@@ -497,6 +497,7 @@ generateIndexAndDump(StringSet<TString, TSpec> & seqs,
     else // don't print progress (independent of algo)
         createIndexActual(dbIndex, redSubjSeqs, TFullFibre(),
                          Nothing());
+
 
     // instantiate potential rest
 //     std::cout << "\nActualNumComparisons: " << counter._comparisons
@@ -519,7 +520,7 @@ generateIndexAndDump(StringSet<TString, TSpec> & seqs,
     s = sysTime();
     std::string path = toCString(options.dbFile);
     path += '.' + std::string(_alphName(TRedAlph()));
-    if (indexIsFM)
+    if (indexIsFM2 > 0)
         path += ".fm";
     else
         path += ".sa";

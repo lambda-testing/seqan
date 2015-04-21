@@ -85,8 +85,8 @@ using namespace seqan;
 template <typename TSpec = void>
 using TFMIndex = FMIndex<TSpec>;
 
-/*template <typename TSpec = void>
-using TBidirectionalFMIndex = BidirectionalFMIndex<TSpec>;*/
+template <typename TSpec = void>
+using TBidirectionalFMIndex = BidirectionalFMIndex<TSpec>;
 
 namespace SEQAN_NAMESPACE_MAIN
 {
@@ -129,7 +129,7 @@ struct DefaultIndexCreator<Index<TText, FMIndex<SaAdvancedSort<TSpec>, TConfig> 
 
 
 //TODO:cpockrandt: falls was nicht klappt, keine ahnung wozu das hier sein soll? hab ich nur kopiert ;)
-/*template <typename TText, typename TSpec, typename TConfig>
+template <typename TText, typename TSpec, typename TConfig>
 struct Fibre<Index<TText, BidirectionalFMIndex<SaAdvancedSort<TSpec>, TConfig> >, FibreTempSA>
 {
     typedef Index<TText, BidirectionalFMIndex<SaAdvancedSort<TSpec>, TConfig> >        TIndex_;
@@ -143,7 +143,7 @@ struct DefaultIndexCreator<Index<TText, BidirectionalFMIndex<SaAdvancedSort<TSpe
 {
     typedef SaAdvancedSort<TSpec> Type;
 //     std::function<void(void)> progressCallback;
-};*/
+};
 
 
 
@@ -375,7 +375,7 @@ parseCommandLine(LambdaOptions & options, int argc, char const ** argv)
 //         "(auto means \"try sa first then fm\").",
         ArgParseArgument::STRING,
         "STR"));
-    setValidValues(parser, "db-index-type", "sa fm");
+    setValidValues(parser, "db-index-type", "sa fm bifm");
     setDefaultValue(parser, "db-index-type", "fm");
 
     addSection(parser, "Output Options");
@@ -814,7 +814,7 @@ parseCommandLine(LambdaIndexerOptions & options, int argc, char const ** argv)
         "suffix array or full-text minute space.",
         ArgParseArgument::STRING,
         "type"));
-    setValidValues(parser, "db-index-type", "sa fm");
+    setValidValues(parser, "db-index-type", "sa fm bifm");
     setDefaultValue(parser, "db-index-type", "fm");
 
     addOption(parser, ArgParseOption("v", "verbosity",
@@ -940,8 +940,10 @@ parseCommandLineShared(SharedOptions & options, ArgumentParser & parser)
     getOptionValue(buffer, parser, "db-index-type");
     if (buffer == "sa")
         options.dbIndexType = 0;
-    else // if fm
+    else if (buffer == "fm")// if fm
         options.dbIndexType = 1;
+    else // if bifm
+        options.dbIndexType = 2;
 
     getOptionValue(buffer, parser, "program");
     if (buffer == "blastn")
@@ -1060,9 +1062,9 @@ printOptions(LambdaOptions const & options)
               << " INPUT\n"
               << "  query file:               " << options.queryFile << "\n"
               << "  db file:                  " << options.dbFile << "\n"
-/*              << "  db index type:            " << ((TGH::indexIsFM == 2) ? "BiFM-Index" : ((TGH::indexIsFM == 1)
+              << "  db index type:            " << ((TGH::indexIsFM2 == 2) ? "BiFM-Index" : ((TGH::indexIsFM2 == 1)
                                                     ? "FM-Index\n"
-                                                    : "SA-Index\n"))*/
+                                                    : "SA-Index\n"))
               << " OUTPUT (file)\n"
               << "  output file:              " << options.output << "\n"
               << "  minimum % identity:       " << options.idCutOff << "\n"

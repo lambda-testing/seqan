@@ -310,7 +310,7 @@ mainIndexTyped(TRedAlph const & /**/,
 
     if (options.dbIndexType == 2)
     {
-        using TIndexSpec = TFMIndex<TIndexSpecSpec>;
+        using TIndexSpec = TBidirectionalFMIndex<TIndexSpecSpec>;
         generateIndexAndDump<TIndexSpec,TIndexSpecSpec>(translatedSeqs,
                                                         options,
                                                         TRedAlph(),

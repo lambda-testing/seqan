@@ -481,46 +481,6 @@ generateIndexAndDump(StringSet<TString, TSpec> & seqs,
 
     TRedSeqsACT redSubjSeqs(seqs);
 
-
-
-
-
-    /*Index<TRedSeqs, BidirectionalFMIndex<> > test(redSubjSeqs);
-
-
-
-    typedef StringSet<ModifiedString<String<char>, ModReverse > > TText2;
-    typedef Index<TText2, FMIndex<> >      TIndex2;
-	typedef typename Fibre<TIndex2, FibreTempSA>::Type   TTempSA;
-
-	TText2 text2;
-	TIndex2 index2;
-	TTempSA const tempSA;
-
-	typedef LF<TText2, void, FMIndexConfig<void, FMUnidirectional> > TLF;
-	TLF lf;
-	lf = indexLF(index2);
-	indexText(index2) = text2;
-
-	typedef typename Value<TLF>::Type                          TValue;
-
-	prefixSums<TValue>(lf.sums, indexText(index2));*/
-
-	//createLF(lf, text2, tempSA);
-
-
-	//LF<TText, TSpec, TConfig> & lf, TOtherText const & text, TSA const & sa
-	//typedef LF<TText, TSpec, TConfig>                          TLF;
-	//typedef typename Fibre<TLF, FibreTempBwt>::Type            TBwt;
-
-	//_createBwt(indexLF(index2), bwt, text2, tempSA);
-
-
-
-
-
-
-
 //     TProgressCounter counter(redSubjSeqs, 0);
 //     std::cout << "ExpectedNumComparisons: " << counter._expectedComparisons
 //               << std::endl;

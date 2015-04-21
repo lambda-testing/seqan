@@ -357,32 +357,6 @@ inline bool indexCreate(Index<StringSet<TText, TIrgendwas>, BidirectionalFMIndex
                         FibreSALF const & fibre,
                         TLambda const & progressCallback)
 {
-	/*typedef Index<StringSet<ModifiedString<TText, ModReverse>, TIrgendwas>, FMIndex<TSpec, FMIndexConfig<void, FMBidirectional> > > TRevIndex;
-
-	typedef TRevIndex      TIndex;
-    typedef typename Fibre<TIndex, FibreTempSA>::Type   TTempSA;
-
-    TTempSA tempSA;
-
-
-	createLF(indexLF(index.rev), revText, tempSA);*/
-	 /*
-
-
-   typedef LF<StringSet<TRevText, TIrgendwas>, TSpec, TConfig>                          TLF;
-	typedef Index<StringSet<TRevText, TIrgendwas>, FMIndex<TSpec, TConfig> >      TIndex;
-	TIndex testAssign;
-    typedef typename Fibre<TLF, FibreTempBwt>::Type            TBwt;
-    typedef typename Fibre<TIndex, FibreTempSA>::Type   TTempSA;
-	typedef typename Size<TTempSA>::Type                        TSize;
-	typedef typename Iterator<TBwt, Standard>::Type         TBwtIter;
-	TBwtIter bwtIt;
-	TSize i = 1;
-	assignValue(bwtIt, back(revText[i]));
-
-
-	return true;*/
-
 	// TODO:cpockrandt: progressCallback funzt so nicht, aber erstmal egal!
     //return indexCreate(index.fwd, text, fibre, progressCallback);
     return indexCreate(index.fwd, text, fibre, progressCallback) &&

@@ -138,66 +138,6 @@ realMain(LambdaOptions      const & options,
 
 int main(int argc, char const ** argv)
 {
-	// Test
-	/*for (int n = 0; n < 100; ++n)
-	{
-		//break;
-		std::cout << "n = " << n << " ";
-		for (int p = 0; p <= n; ++p)
-		{
-			std::cout << ".";
-			std::cout.flush();
-			for (int i = 0; i < 100; ++i)
-			{
-				if (testExactSearch(n, p, 4, 0))
-					return 1;
-			}
-		}
-		std::cout << std::endl;
-	}
-	std::cout << "n = 10000, p = 30" << std::endl;
-	for (int i = 0; i < 10000; ++i)
-	{
-		std::cout << i << std::endl;
-		std::cout.flush();
-		if (testExactSearch(10000, 50, 4, 0))
-			break;
-	}*/
-
-	/*typedef String<char> TText;
-
-		TText text = "mississippi";
-		TText pattern = "misi";
-
-		std::cout << text << std::endl;
-
-		const char *fileName = "/home/chris/indexTest/myindex";
-
-
-		if (true)
-		{
-			Index<TText, FMI ndex<> > bi fm Index(text);
-			//getFibre(bif mIndex, FibreLF());
-			//indexRequire(bif mIndex, FibreText());
-			indexRequire(bif mIndex, FibreSA());
-			//indexRequire(bif mIndex, FibreLF());
-			//indexRequire(bif mIndex, FibreSALF());
-			save(bifm Index, fileName);
-
-			Ite rator<Index<TText, FMIn dex<> >, Top Down<Pa rentLi nks<> > >::Type it(bif mIndex);
-			std::cout << go Down(it, "iss") << std::endl;
-		}
-		else
-		{
-			Index<TText, FM Index<> > bi fm Index;
-			open(bif mIndex, fileName);
-
-			Ite rator<Index<TText, FMIn dex<> >, Top Down<Pare ntL inks<> > >::Type it(bif mIndex);
-			std::cout << go Down(it, "iss") << std::endl;
-		}
-
-    return 0;*/
-
     // Parse the command line.
     seqan::ArgumentParser parser;
     LambdaOptions options;

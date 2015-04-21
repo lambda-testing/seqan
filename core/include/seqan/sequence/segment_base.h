@@ -334,15 +334,11 @@ struct Reference<Segment<THost, TSpec> > :
 
 template <typename THost, typename TSpec>
 struct Reference<Segment<THost, TSpec> const > :
-    Reference<THost> {};
+    Reference<THost const> {};
 
 // TODO(weese): It's a philosophical question whether const Views like Segments are allowed to modify the host or not
 //              It would be more restrictive but consistent in generic algorithms if Segments would behave like Strings (immutable host)
 //              On the other hand segments are prone to unintentionally be given as a const to a function (by-const-reference, not by copy)
-
-//template <typename THost, typename TSpec>
-//struct Reference<Segment<THost, TSpec> const > :
-//    Reference<THost const> {};
 
 //////////////////////////////////////////////////////////////////////////////
 

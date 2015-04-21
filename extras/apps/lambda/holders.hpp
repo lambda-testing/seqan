@@ -158,8 +158,10 @@ public:
                                 ModView<FunctorConvert<TransAlph<p>,TRedAlph>>>;
     using TRedSeqsVirt  = StringSet<TRedSeqVirt, Owner<ConcatDirect<>>>;
 
-    static bool constexpr
-    indexIsFM           = std::is_same<TIndexSpec_, TFMIndex<>>::value;
+    static int constexpr
+    indexIsFM2           = (std::is_same<TIndexSpec_, TBidirectionalFMIndex<> >::value) ? 2 :
+    							((std::is_same<TIndexSpec_, TFMIndex<>>::value) ? 1 :0);
+
     static bool constexpr
     noReduction         = std::is_same<TransAlph<p>, TRedAlph>::value;
 
@@ -383,7 +385,7 @@ onFindImpl(LocalDataHolder<TMatch, TGlobalHolder, TScoreExtension> & lH,
            TSeedId const & seedId,
            TSubjOcc subjOcc)
 {
-    if (TGlobalHolder::indexIsFM) // positions are reversed
+    if (TGlobalHolder::indexIsFM2 > 0) // positions are reversed
         setSeqOffset(subjOcc,
                      length(lH.gH.subjSeqs[getSeqNo(subjOcc)])
                      - getSeqOffset(subjOcc)

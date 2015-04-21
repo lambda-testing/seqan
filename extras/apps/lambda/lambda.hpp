@@ -263,7 +263,9 @@ loadDbIndexFromDisk(TGlobalHolder       & globalHolder,
     double start = sysTime();
     std::string path = toCString(options.dbFile);
     path += '.' + std::string(_alphName(typename TGlobalHolder::TRedAlph()));
-    if (TGlobalHolder::indexIsFM)
+    if (TGlobalHolder::indexIsFM2 == 2)
+        path += ".bifm";
+    else if (TGlobalHolder::indexIsFM2 == 1)
         path += ".fm";
     else
         path += ".sa";
@@ -278,7 +280,7 @@ loadDbIndexFromDisk(TGlobalHolder       & globalHolder,
 
     // assign previously loaded sub sequences (possibly modifier-wrapped
     // to the text-member of our new index (unless isFM, which doesnt need text)
-    if (!TGlobalHolder::indexIsFM)
+    if (TGlobalHolder::indexIsFM2 == 0)
         indexText(globalHolder.dbIndex) = globalHolder.redSubjSeqs;
 
     double finish = sysTime() - start;

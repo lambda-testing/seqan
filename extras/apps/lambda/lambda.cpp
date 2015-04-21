@@ -139,7 +139,7 @@ realMain(LambdaOptions      const & options,
 int main(int argc, char const ** argv)
 {
 	// Test
-	for (int n = 0; n < 100; ++n)
+	/*for (int n = 0; n < 100; ++n)
 	{
 		//break;
 		std::cout << "n = " << n << " ";
@@ -162,9 +162,8 @@ int main(int argc, char const ** argv)
 		std::cout.flush();
 		if (testExactSearch(10000, 50, 4, 0))
 			break;
-	}
+	}*/
 
-	return 0;
 	/*typedef String<char> TText;
 
 		TText text = "mississippi";
@@ -567,8 +566,7 @@ preMain(LambdaOptions      const & options,
                                    TScoreScheme(),
                                    TScoreExtension());
     else
-    	//TODO:cpockrandt
-        return realMain<TFMIndex<>>(options,
+        return realMain<TBidirectionalFMIndex<>>(options,
                                    TFormat(),
                                    TRedAlph(),
                                    TScoreScheme(),
@@ -606,7 +604,6 @@ realMain(LambdaOptions      const & options,
 
 
 
-
     myPrint(options, 1, "LAMBDA - the Local Aligner for Massive Biological DatA"
                       "\n======================================================"
                       "\nVersion ", LAMBDA_VERSION, "\n\n");
@@ -615,6 +612,12 @@ realMain(LambdaOptions      const & options,
         printOptions<TLocalHolder>(options);
 
     TGlobalHolder globalHolder;
+
+    /*typedef StringSet<String<SimpleType<unsigned char, Dna5_>, Alloc<> >, Owner<ConcatDirect<void> > > TMyText;
+    typedef BidirectionalFMIndex<void, FMIndexConfig<void, FMBidirectional> > TMyIndex;
+    //Index<TMyText, TMyIndex> testIndex("aa");
+    //indexSA(testIndex);
+    return 0;*/
 
     int ret = prepareScoring(globalHolder, options);
     if (ret)

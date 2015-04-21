@@ -489,6 +489,16 @@ value(String<TValue, TSpec> & me,
     return *(begin(me, Standard()) + pos);
 }
 
+/*template <typename TValue, typename TSpec, typename TTag, typename TPos>
+SEQAN_HOST_DEVICE inline typename Reference< ModifiedString<String<TValue, TSpec>, TTag > const >::Type
+value(ModifiedString<String<TValue, TSpec>, TTag > const & me,
+      TPos const & pos)
+{
+    typedef typename Position< ModifiedString<String<TValue, TSpec>, TTag > const >::Type TStringPos SEQAN_TYPEDEF_FOR_DEBUG;
+    SEQAN_ASSERT_LT_MSG(static_cast<TStringPos>(pos), static_cast<TStringPos>(length(me)), "Trying to access an element behind the last one!");
+    return *(begin(me, Standard()) + pos);
+}*/
+
 template <typename TValue, typename TSpec, typename TPos>
 SEQAN_HOST_DEVICE inline typename Reference< String<TValue, TSpec> const >::Type
 value(String<TValue, TSpec> const & me,

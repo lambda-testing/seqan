@@ -245,7 +245,7 @@ inline
 double GetMedian(unsigned int daArray[], unsigned int iSize) {
     // Allocate an array of the same size and sort it.
 	unsigned int* dpSorted = new unsigned int[iSize];
-    for (int i = 0; i < iSize; ++i) {
+    for (unsigned int i = 0; i < iSize; ++i) {
         dpSorted[i] = daArray[i];
     }
     for (unsigned int i = iSize - 1; i > 0; --i) {
@@ -277,7 +277,6 @@ double GetMode(unsigned int daArray[], unsigned int iSize) {
     for (unsigned int i = 0; i < iSize; ++i) {
         ipRepetition[i] = 0;
         unsigned int j = 0;
-        bool bFound = false;
         while ((j < i) && (daArray[i] != daArray[j])) {
             if (daArray[i] != daArray[j]) {
                 ++j;
@@ -411,7 +410,7 @@ testRamUsage(bool const bidirectional = false)
 
 	//indexRequire(bifmIndex, FibreSA());
 
-	//system("exec rm -r /home/chris/indexTest/*");
+	//system("exec rm -r /home/chris/indexTest/ENTFERNE_MICH_WEGEN_KOMMENTAR_SYMBOL*");
 
 	//save(bifmIndex, fileName);
 

@@ -342,7 +342,7 @@ struct GetValue<ModifiedIterator<THost, ModView<TFunctor> > > : Value<ModifiedIt
 template <typename THost, typename TFunctor>
 struct Reference<ModifiedIterator<THost, ModView<TFunctor> > >
 {
-    typedef typename Value<ModifiedIterator<THost, ModView<TFunctor> > >::Type Type;
+    typedef typename Value<ModifiedIterator<THost, ModView<TFunctor> > >::Type & Type;
 };
 
 // --------------------------------------------------------------------------
@@ -402,7 +402,7 @@ getValue(ModifiedIterator<THost, ModView<TFunctor> > const & me)
 // --------------------------------------------------------------------------
 
 template <typename THost, typename TFunctor, typename TPos>
-inline typename Reference<ModifiedString<THost, ModView<TFunctor> > >::Type 
+inline typename Reference<ModifiedString<THost, ModView<TFunctor> > >::Type
 value(ModifiedString<THost, ModView<TFunctor> > & me, TPos pos)
 {
     me.tmp_value = cargo(me).func(getValue(host(me), pos));
@@ -421,21 +421,21 @@ value(ModifiedString<THost, ModView<TFunctor> > const & me, TPos pos)
 // Function value()                                       [ModifiedString]
 // --------------------------------------------------------------------------
 
-// template <typename THost, typename TFunctor, typename TSpec, typename TPos>
-// inline typename Reference<Segment<ModifiedString<THost, ModView<TFunctor> >, TSpec> >::Type
-// value(Segment<ModifiedString<THost, ModView<TFunctor> >, TSpec> & me, TPos pos)
-// {
-//     host(me).tmp_value = cargo(host(me)).func(*(begin(me, Standard()) + pos));
-//     return host(me).tmp_value;
-// }
-// 
-// template <typename THost, typename TFunctor, typename TSpec, typename TPos>
-// inline typename Reference<Segment<ModifiedString<THost, ModView<TFunctor> >, TSpec> const>::Type
-// value(Segment<ModifiedString<THost, ModView<TFunctor> >, TSpec> const & me, TPos pos)
-// {
-//     host(me).tmp_value = cargo(host(me)).func(*(begin(me, Standard()) + pos));
-//     return host(me).tmp_value;
-// }
+template <typename THost, typename TFunctor, typename TSpec, typename TPos>
+inline typename Reference<Segment<ModifiedString<THost, ModView<TFunctor> >, TSpec> >::Type
+value(Segment<ModifiedString<THost, ModView<TFunctor> >, TSpec> & me, TPos pos)
+{
+ host(me).tmp_value = cargo(host(me)).func(*(begin(host(me), Standard()) + pos));
+ return host(me).tmp_value;
+}
+
+template <typename THost, typename TFunctor, typename TSpec, typename TPos>
+inline typename Reference<Segment<ModifiedString<THost, ModView<TFunctor> >, TSpec> const>::Type
+value(Segment<ModifiedString<THost, ModView<TFunctor> >, TSpec> const & me, TPos pos)
+{
+ host(me).tmp_value = cargo(host(me)).func(*(begin(host(me), Standard()) + pos));
+ return host(me).tmp_value;
+}
 
 // --------------------------------------------------------------------------
 // Function getValue()                                       [ModifiedString]

@@ -157,7 +157,7 @@ struct GetValue<ModifiedIterator<THost, TSpec> const> : GetValue<ModifiedIterato
 // --------------------------------------------------------------------------
 
 template <typename THost, typename TSpec>
-struct Reference<ModifiedIterator<THost, TSpec> > : Reference<THost>
+struct Reference<ModifiedIterator<THost, TSpec> > : GetValue<THost>
 {};
 
 template <typename THost, typename TSpec>

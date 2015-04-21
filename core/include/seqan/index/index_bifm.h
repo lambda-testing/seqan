@@ -76,12 +76,34 @@ class BidirectionalFMIndex;
  * suffix array and the LF table, which provides all necessary information for the LF mapping.
  */
 
-template <typename TText, typename TSpec, typename TBidirectional>
-class Index<TText, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec, TBidirectional> > >
+template <typename TText, typename TIrgendwas, typename TSpec, typename TSpec2, typename TBidirectional>
+class Index<StringSet<TText, TIrgendwas>, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec2, TBidirectional> > >
 {
 	typedef ModifiedString<TText, ModReverse>				TRevText;
-	typedef Index<TRevText, FMIndex<TSpec, FMIndexConfig<TSpec, FMBidirectional> > >		TRevIndex;
-	typedef Index<TText, FMIndex<TSpec, FMIndexConfig<TSpec, FMBidirectional> > >			TFwdIndex;
+	typedef Index<StringSet<TRevText, TIrgendwas>, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >		TRevIndex;
+	typedef Index<StringSet<TText, TIrgendwas>	 , FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >			TFwdIndex;
+
+	public:
+
+	StringSet<TRevText, TIrgendwas>	revText;
+	TRevIndex		rev;
+	TFwdIndex		fwd;
+
+	Index()	{}
+
+	Index(StringSet<TText, TIrgendwas> & text) :
+		revText(text),
+		rev(revText),
+		fwd(text)
+	{ }
+};
+
+/*template <typename TText, typename TSpec, typename TSpec2, typename TBidirectional>
+class Index<TText, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec2, TBidirectional> > >
+{
+	typedef ModifiedString<TText, ModReverse>				TRevText;
+	typedef Index<TRevText, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >		TRevIndex;
+	typedef Index<TText, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >			TFwdIndex;
 
 	public:
 
@@ -96,7 +118,19 @@ class Index<TText, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec, TBidirection
 		rev(revText),
 		fwd(text)
 	{}
-};
+};*/
+
+// TODO:cpockrandt: actually we don't need them for FM indices ...
+template <typename TText, typename TSpec, typename TConfig>
+inline typename Fibre<Index<TText, FMIndex<TSpec, TConfig> >, FibreText>::Type & indexText(Index<TText, BidirectionalFMIndex<TSpec, TConfig> > &index) { return indexText(index.fwd); }
+template <typename TText, typename TSpec, typename TConfig>
+inline typename Fibre<Index<TText, FMIndex<TSpec, TConfig> > const, FibreText>::Type & indexText(Index<TText, BidirectionalFMIndex<TSpec, TConfig> > const &index) { return indexText(index.fwd); }
+
+template <typename TText, typename TSpec, typename TSpec2, typename TBidirectional>
+SEQAN_HOST_DEVICE inline typename Fibre<Index<TText, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >, FibreSA>::Type & indexSA(Index<TText, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec2, TBidirectional> > > &index) { return indexSA(index.fwd); }
+template <typename TText, typename TSpec, typename TSpec2, typename TBidirectional>
+SEQAN_HOST_DEVICE inline typename Fibre<Index<TText, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > > const, FibreSA>::Type & indexSA(Index<TText, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec2, TBidirectional> > > const &index) { return indexSA(index.fwd); }
+
 
 // This function can be used to open a previously saved index.
 template <typename TText, typename TSpec, typename TConfig>

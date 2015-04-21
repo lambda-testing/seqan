@@ -374,7 +374,7 @@ convertMaskingFile(uint64_t numberOfSeqs,
 template <typename TIndex, typename TText, typename TFibre>
 inline void
 createIndexActual(TIndex & index,
-                      TText const & text,
+                      TText & text,
                       TFibre const &,
                       SaAdvancedSort<MergeSortTag> const &)
 {
@@ -386,7 +386,7 @@ createIndexActual(TIndex & index,
 template <typename TIndex, typename TText, typename TFibre>
 inline void
 createIndexActual(TIndex & index,
-                      TText const & text,
+                      TText & text,
                       TFibre const &,
                       SaAdvancedSort<QuickSortBucketTag> const &)
 {
@@ -403,7 +403,7 @@ createIndexActual(TIndex & index,
 template <typename TIndex, typename TText, typename TFibre, typename TAlgo>
 inline void
 createIndexActual(TIndex & index,
-                      TText const & text,
+                      TText & text,
                       TFibre const &,
                       TAlgo const &)
 {
@@ -434,10 +434,10 @@ generateIndexAndDump(StringSet<TString, TSpec> & seqs,
                             ModView<FunctorConvert<TransAlph<p>,TRedAlph>>>;
     using TRedSeqsVirt  = StringSet<TRedSeqVirt, Owner<ConcatDirect<>>>;
 
-    static bool constexpr
-    indexIsFM           = std::is_same<TIndexSpec,
-                                       TFMIndex<TIndexSpecSpec>
-                                       >::value;
+    static int constexpr
+    indexIsFM2           = (std::is_same<TIndexSpec, TBidirectionalFMIndex<TIndexSpecSpec> >::value) ? 2 :
+    							((std::is_same<TIndexSpec, TFMIndex<TIndexSpecSpec>>::value) ? 1 :0);
+
     static bool constexpr
     noReduction         = std::is_same<TransAlph<p>, TRedAlph>::value;
 
@@ -451,7 +451,7 @@ generateIndexAndDump(StringSet<TString, TSpec> & seqs,
                             TRedSeqsVirt>::type;    // modview
 
     using TDbIndex      = Index<TRedSeqs, TIndexSpec>;
-    using TFullFibre    = typename std::conditional<indexIsFM,
+    using TFullFibre    = typename std::conditional< (indexIsFM2 > 0),
                                                     FibreSALF,
                                                     FibreSA>::type;
     static bool constexpr
@@ -476,10 +476,50 @@ generateIndexAndDump(StringSet<TString, TSpec> & seqs,
 //     std::cout << "indexIsFM: " << int(indexIsFM) << std::endl;
 
     // FM-Index needs reverse input
-    if (indexIsFM)
+    if (indexIsFM2 > 0)
         reverse(seqs);
 
     TRedSeqsACT redSubjSeqs(seqs);
+
+
+
+
+
+    /*Index<TRedSeqs, BidirectionalFMIndex<> > test(redSubjSeqs);
+
+
+
+    typedef StringSet<ModifiedString<String<char>, ModReverse > > TText2;
+    typedef Index<TText2, FMIndex<> >      TIndex2;
+	typedef typename Fibre<TIndex2, FibreTempSA>::Type   TTempSA;
+
+	TText2 text2;
+	TIndex2 index2;
+	TTempSA const tempSA;
+
+	typedef LF<TText2, void, FMIndexConfig<void, FMUnidirectional> > TLF;
+	TLF lf;
+	lf = indexLF(index2);
+	indexText(index2) = text2;
+
+	typedef typename Value<TLF>::Type                          TValue;
+
+	prefixSums<TValue>(lf.sums, indexText(index2));*/
+
+	//createLF(lf, text2, tempSA);
+
+
+	//LF<TText, TSpec, TConfig> & lf, TOtherText const & text, TSA const & sa
+	//typedef LF<TText, TSpec, TConfig>                          TLF;
+	//typedef typename Fibre<TLF, FibreTempBwt>::Type            TBwt;
+
+	//_createBwt(indexLF(index2), bwt, text2, tempSA);
+
+
+
+
+
+
 
 //     TProgressCounter counter(redSubjSeqs, 0);
 //     std::cout << "ExpectedNumComparisons: " << counter._expectedComparisons
@@ -497,6 +537,7 @@ generateIndexAndDump(StringSet<TString, TSpec> & seqs,
     else // don't print progress (independent of algo)
         createIndexActual(dbIndex, redSubjSeqs, TFullFibre(),
                          Nothing());
+
 
     // instantiate potential rest
 //     std::cout << "\nActualNumComparisons: " << counter._comparisons
@@ -519,7 +560,7 @@ generateIndexAndDump(StringSet<TString, TSpec> & seqs,
     s = sysTime();
     std::string path = toCString(options.dbFile);
     path += '.' + std::string(_alphName(TRedAlph()));
-    if (indexIsFM)
+    if (indexIsFM2 > 0)
         path += ".fm";
     else
         path += ".sa";

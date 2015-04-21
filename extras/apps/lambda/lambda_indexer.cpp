@@ -95,6 +95,38 @@ mainIndexTyped(TRedAlph const & /**/,
 
 int main(int argc, char const ** argv)
 {
+/*typedef seqan::StringSet<seqan::String<seqan::Dna5> > TText;
+typedef Index<TText, FMIndex<> > TIndex;
+typedef Iterator<TIndex, TopDown<ParentLinks<> > >::Type TIter;
+
+CharString id; 
+TText seq;
+
+    std::ifstream stream;
+    stream.open(toCString("/dev/shm/human_g1k_v37.fasta"));
+    if (!stream.is_open())
+        return -1;
+
+    typedef RecordReader<std::ifstream, DoublePass<> > TReader;
+    TReader reader(stream);
+StringSet<CharString> ids;
+    int res1 = read2(ids, seq, reader, Fasta());
+    if (res1)
+        std::cerr << "Error : " << res1 << "\n";
+
+    stream.close();
+
+
+
+
+//seqan::SeqFileIn seqFileIn("/dev/shm/human_g1k_v37.fasta");
+//readRecord(id, seq, seqFileIn);
+//close(seqFileIn);
+
+TIndex index(seq);
+TIter it(index);
+return 0;*/
+
     // Parse the command line.
     seqan::ArgumentParser parser;
     LambdaIndexerOptions options;

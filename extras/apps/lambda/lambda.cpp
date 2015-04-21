@@ -139,7 +139,7 @@ realMain(LambdaOptions      const & options,
 int main(int argc, char const ** argv)
 {
 	// Test
-	for (int n = 0; n < 100; ++n)
+/*	for (int n = 0; n < 100; ++n)
 	{
 		//break;
 		std::cout << "n = " << n << " ";
@@ -165,7 +165,7 @@ int main(int argc, char const ** argv)
 	}
 
 	return 0;
-	/*typedef String<char> TText;
+*/	/*typedef String<char> TText;
 
 		TText text = "mississippi";
 		TText pattern = "misi";

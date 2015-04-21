@@ -371,6 +371,19 @@ convertMaskingFile(uint64_t numberOfSeqs,
 #define TID 0
 #endif
 
+template <typename TIndexText, typename TIndexConfig, typename TText, typename TFibre>
+inline void
+createIndexActual(Index<TIndexText, BidirectionalFMIndex<TIndexConfig> > & index,
+                      TText & text,
+                      TFibre const &,
+                      SaAdvancedSort<MergeSortTag> const &)
+{
+    ComparisonCounter<TText, std::true_type> counter(text);
+    indexCreate(index, text, TFibre(), [&counter] () { counter.inc(); });
+    uint64_t tmp__lastPercent = counter._lastPercent >> 2;
+    printProgressBar(tmp__lastPercent, 100);
+}
+
 template <typename TIndex, typename TText, typename TFibre>
 inline void
 createIndexActual(TIndex & index,
@@ -381,6 +394,27 @@ createIndexActual(TIndex & index,
     ComparisonCounter<TText, std::true_type> counter(text);
     indexCreate(index, text, TFibre(), [&counter] () { counter.inc(); });
     printProgressBar(counter._lastPercent, 100);
+}
+
+template <typename TIndexText, typename TIndexConfig, typename TText, typename TFibre>
+inline void
+createIndexActual(Index<TIndexText, BidirectionalFMIndex<TIndexConfig> > & index,
+                      TText & text,
+                      TFibre const &,
+                      SaAdvancedSort<QuickSortBucketTag> const &)
+{
+    uint64_t _lastPercent = 0;
+    indexCreate(index, text, TFibre(),
+        [&_lastPercent] (uint64_t curPerc)
+        {
+            if (TID == 0)
+			{
+				uint64_t tmp__lastPercent = _lastPercent >> 2;
+				printProgressBar(tmp__lastPercent, curPerc);
+			}
+        });
+    uint64_t tmp__lastPercent = _lastPercent >> 2;
+    printProgressBar(tmp__lastPercent, 100);
 }
 
 template <typename TIndex, typename TText, typename TFibre>
@@ -395,7 +429,9 @@ createIndexActual(TIndex & index,
         [&_lastPercent] (uint64_t curPerc)
         {
             if (TID == 0)
-                printProgressBar(_lastPercent, curPerc);
+			{
+				printProgressBar(_lastPercent, curPerc);
+			}
         });
     printProgressBar(_lastPercent, 100);
 }

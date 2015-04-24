@@ -342,7 +342,7 @@ struct GetValue<ModifiedIterator<THost, ModView<TFunctor> > > : Value<ModifiedIt
 template <typename THost, typename TFunctor>
 struct Reference<ModifiedIterator<THost, ModView<TFunctor> > >
 {
-    typedef typename Value<ModifiedIterator<THost, ModView<TFunctor> > >::Type & Type;
+    typedef typename Value<ModifiedIterator<THost, ModView<TFunctor> > >::Type Type;
 };
 
 // --------------------------------------------------------------------------

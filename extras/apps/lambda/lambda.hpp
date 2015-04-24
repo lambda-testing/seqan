@@ -703,9 +703,9 @@ template <typename BackSpec, typename TLocalHolder>
 inline void
 __search(TLocalHolder & lH)
 {
-    if (lH.options.doubleIndexing)
+    /*if (lH.options.doubleIndexing)
         __searchDoubleIndex<BackSpec>(lH);
-    else
+    else*/
         __searchSingleIndex<BackSpec>(lH);
 }
 

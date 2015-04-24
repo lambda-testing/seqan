@@ -98,6 +98,28 @@ class Index<StringSet<TText, TIrgendwas>, BidirectionalFMIndex<TSpec, FMIndexCon
 	{ }
 };
 
+template <typename TText, typename TSpec, typename TSpec2, typename TBidirectional>
+class Index<TText, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec2, TBidirectional> > >
+{
+	typedef ModifiedString<TText, ModReverse>				TRevText;
+	typedef Index<TRevText, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >		TRevIndex;
+	typedef Index<TText, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >			TFwdIndex;
+
+	public:
+
+	TRevText	revText;
+	TRevIndex		rev;
+	TFwdIndex		fwd;
+
+	Index()	{}
+
+	Index(TText & text) :
+		revText(text),
+		rev(revText),
+		fwd(text)
+	{ }
+};
+
 /*template <typename TText, typename TSpec, typename TSpec2, typename TBidirectional>
 class Index<TText, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec2, TBidirectional> > >
 {

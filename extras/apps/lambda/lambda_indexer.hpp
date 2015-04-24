@@ -534,6 +534,13 @@ generateIndexAndDump(StringSet<TString, TSpec> & seqs,
         createIndexActual(dbIndex, redSubjSeqs, TFullFibre(),
                          Nothing());
 
+    /*typedef StringSet<String<SimpleType<unsigned char, Dna5_>, Alloc<> >, Owner<ConcatDirect<void> > > MyText;
+    typedef Index<MyText, BidirectionalFMIndex<void, FMIndexConfig<void, FMUnidirectional> > > MyIndex;
+    typedef Iter<MyIndex, VSTree<TopDown<ParentLinks<> > > > MyIter;
+    MyText texti;
+    MyIndex indi(texti);
+    MyIter itti(indi);
+    getOccurrences(itti);*/
 
     // instantiate potential rest
 //     std::cout << "\nActualNumComparisons: " << counter._comparisons

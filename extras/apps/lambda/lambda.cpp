@@ -138,6 +138,47 @@ realMain(LambdaOptions      const & options,
 
 int main(int argc, char const ** argv)
 {
+	/*for (int n = 0; n < 20; ++n)
+	{
+		//break;
+		std::cout << "n = " << n << " ";
+		for (int p = 0; p <= n; ++p)
+		{
+			std::cout << ".";
+			std::cout.flush();
+			for (int i = 0; i < 100; ++i)
+			{
+				if (testExactSearch(n, p, 4, false))
+					return 1;
+				if (testExactSearch2(n, p, 4, 1, false))
+					return 1;
+				if (testExactSearch2(n, p, 4, 2, false))
+					return 1;
+				if (testExactSearch2(n, p, 4, 3, false))
+					return 1;
+				if (testExactSearch2(n, p, 4, 4, false))
+					return 1;
+				if (testExactSearch2(n, p, 4, 5, false))
+					return 1;
+			}
+		}
+		std::cout << std::endl;
+	}
+	std::cout << "n = 10000, p = 30" << std::endl;
+	for (int i = 0; i < 1000; ++i)
+	{
+		std::cout << i << std::endl;
+		std::cout.flush();
+		if (testExactSearch(10000, 50, 4, false))
+			break;
+		if (testExactSearch2(10000, 50, 4, 10, false))
+			break;
+		if (testExactSearch2(10000, 50, 4, 100, false))
+			break;
+	}
+
+	return 0;*/
+
     // Parse the command line.
     seqan::ArgumentParser parser;
     LambdaOptions options;

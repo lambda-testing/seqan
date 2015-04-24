@@ -263,9 +263,7 @@ loadDbIndexFromDisk(TGlobalHolder       & globalHolder,
     double start = sysTime();
     std::string path = toCString(options.dbFile);
     path += '.' + std::string(_alphName(typename TGlobalHolder::TRedAlph()));
-    if (TGlobalHolder::indexIsFM2 == 2)
-        path += ".bifm";
-    else if (TGlobalHolder::indexIsFM2 == 1)
+    if (TGlobalHolder::indexIsFM2 > 0)
         path += ".fm";
     else
         path += ".sa";

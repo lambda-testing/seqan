@@ -46,247 +46,73 @@ namespace seqan {
 // ----------------------------------------------------------------------------
 // Class BidirectionalFMIndex-Iter
 // ----------------------------------------------------------------------------
-//TODO:cpockrandt:documentation
-template <typename TText, typename TTextConfig, class TOccSpec, typename TBidirectional, typename TSpec>
-class Iter<Index<StringSet<TText, TTextConfig>, BidirectionalFMIndex<TOccSpec, FMIndexConfig<TOccSpec, TBidirectional> > >, VSTree<TopDown<TSpec> > >
+
+
+//template<typename>
+//struct is_string_set : std::false_type {};
+
+//template<typename TText, typename TConfig>
+//struct is_string_set<StringSet<TText, TConfig> > : std::true_type {};
+
+//template < typename TText >
+//struct BiFMReversedText {
+	//typedef String< typename Size<TIndex>::Type > Type;
+//};
+
+//template < typename TIndex, typename TSpec >
+//struct Fibre<TIndex const, TSpec> {
+//	typedef typename Fibre<TIndex, TSpec>::Type const Type;
+//};
+
+//template < typename TText >
+//struct BiFMReversedText {
+	//typedef String< typename Size<TIndex>::Type > Type;
+//};
+
+template <typename TText>
+struct BiFMReversedText
 {
-public:
-	typedef Index<StringSet<TText, TTextConfig>, BidirectionalFMIndex<TOccSpec, FMIndexConfig<TOccSpec, TBidirectional> > >	TBiIndex;
+    typedef ModifiedString<TText, ModReverse> Type;
+};
 
-	typedef StringSet<ModifiedString<TText, ModReverse>, TTextConfig>											TRevText;
+template <typename TText, typename TTextConfig>
+struct BiFMReversedText<StringSet<TText, TTextConfig> >
+{
+    typedef StringSet<ModifiedString<TText, ModReverse>, TTextConfig> Type;
+};
 
-	typedef Index<StringSet<TText, TTextConfig>, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >	TFwdIndex;
+template <typename TText, typename TTextConfig>
+struct BiFMReversedText<StringSet<ModifiedString<TText, ModReverse>, TTextConfig> >
+{
+    typedef StringSet<TText, TTextConfig> Type;
+};
+
+template <typename TText>
+struct BiFMReversedText<ModifiedString<TText, ModReverse> >
+{
+    typedef TText Type;
+};
+
+// ----------------------------------------------------------------------------
+// Class BidirectionalFMIndex-Iter
+// ----------------------------------------------------------------------------
+
+//TODO:cpockrandt:documentation
+    //static bool constexpr isStringSet = is_string_set<TText>::value;
+    //using TText2 = typename std::conditional<isStringSet, StringSet<ModifiedString<TText, ModReverse>, >, TText>::type;
+
+	/*typedef Index<TText, BidirectionalFMIndex<TOccSpec, FMIndexConfig<TOccSpec, TBidirectional> > >	TBiIndex;
+
+	typedef typename BiFMReversedText<TText>::Type									TRevText;
+
+	typedef Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >	TFwdIndex;
 	typedef Index<TRevText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >						TRevIndex;
 
 	typedef Iter<TFwdIndex, VSTree<TopDown<TSpec> > >												TFwdIndexIter;
 	typedef Iter<TRevIndex, VSTree<TopDown<TSpec> > >												TRevIndexIter;
 
 	TFwdIndexIter	fwdIter;
-	TRevIndexIter	bwdIter;
-
-//____________________________________________________________________________
-
-	Iter():
-		fwdIter(),
-		bwdIter() {}
-
-	Iter(TBiIndex &_index):
-		fwdIter(*(&_index.fwd)),
-		bwdIter(*(&_index.rev))
-	{
-		fwdIter.setRevIter(bwdIter);
-		bwdIter.setRevIter(fwdIter);
-	}
-
-	Iter(TBiIndex &_index, MinimalCtor):
-		fwdIter(*(&_index.fwd), MinimalCtor()),
-		bwdIter(*(&_index.rev), MinimalCtor())
-	{
-		fwdIter.setRevIter(bwdIter);
-		bwdIter.setRevIter(fwdIter);
-	}
-
-	template <typename TSpec2>
-	Iter(Iter<TBiIndex, VSTree<TopDown<TSpec2> > > const &_origin):
-		fwdIter(*(&_origin.fwdIter)),
-		bwdIter(*(&_origin.bwdIter))
-	{
-		fwdIter.setRevIter(bwdIter);
-		bwdIter.setRevIter(fwdIter);
-	}
-
-//____________________________________________________________________________
-
-	template <typename TSpec2>
-	inline Iter const &
-	operator = (Iter<TBiIndex, VSTree<TopDown<TSpec2> > > const &_origin)
-	{
-		fwdIter = *(&_origin.fwdIter);
-		bwdIter = *(&_origin.bwdIter);
-		return *this;
-	}
-};
-
-template <typename TText, typename TTextConfig, class TOccSpec, typename TSpec>
-class Iter<Index<StringSet<ModifiedString<TText, ModReverse>, TTextConfig>, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >, VSTree<TopDown<TSpec> > >
-{
-public:
-
-	typedef StringSet<ModifiedString<TText, ModReverse>, TTextConfig>						TRevText;
-	typedef Index<StringSet<TText, TTextConfig>, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >		TRevIndex;
-	typedef Index<TRevText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >	TFwdIndex;
-
-	typedef typename VertexDescriptor<TFwdIndex>::Type	TVertexDesc;
-
-	typedef Iter										iterator;
-	typedef Iter<TFwdIndex, VSTree<TopDown<TSpec> > >	TFwdIndexIter;
-	typedef Iter<TRevIndex, VSTree<TopDown<TSpec> > >	TRevIndexIter;
-
-	//typedef	typename HistoryStackEntry_<Iter>::Type		TStackEntry;
-	//typedef String<TStackEntry, Block<> >				TStack;
-
-	TFwdIndex const	*index;		// container of all necessary tables of the forward iterator
-	TRevIndexIter 	*revIter;	// container of all necessary tables of the backward iterator
-	TVertexDesc		vDesc;		// current interval in suffix array and
-								// right border of parent interval (needed in goRight)
-
-	// pseudo history stack (to go up at most one node)
-	TVertexDesc		_parentDesc;
-
-	//TStack			history;	// contains all previously visited intervals (allows to go up)
-
-//____________________________________________________________________________
-
-	Iter() : index() {}
-
-	Iter(TFwdIndex &_index):
-		index(&_index)
-	{
-		_indexRequireTopDownIteration(_index);
-		goRoot(*this);
-	}
-
-	Iter(TFwdIndex &_index, MinimalCtor):
-		index(&_index),
-		vDesc(MinimalCtor()),
-		_parentDesc(MinimalCtor()) {}
-
-	// NOTE(esiragusa): _parentDesc is unitialized
-	Iter(TFwdIndex &_index, TVertexDesc const &_vDesc):
-		index(&_index),
-		vDesc(_vDesc)
-	{
-		_indexRequireTopDownIteration(_index);
-	}
-
-	template <typename TSpec2>
-	Iter(Iter<TFwdIndex, VSTree<TopDown<TSpec2> > > const &_origin):
-		index(&container(_origin)),
-		vDesc(value(_origin)),
-		_parentDesc(nodeUp(_origin))/*,
-		history(_origin.histor)*/ {}
-
-//____________________________________________________________________________
-
-	template <typename TSpec2>
-	inline Iter const &
-	operator = (Iter<TFwdIndex, VSTree<TopDown<TSpec2> > > const &_origin)
-	{
-		index = &container(_origin);
-		vDesc = value(_origin);
-		_parentDesc = nodeUp(_origin);
-		//history = _origin.history;
-		return *this;
-	}
-
-	void setRevIter(TRevIndexIter &_revIter)
-	{
-		revIter = &_revIter;
-	}
-};
-
-template <typename TText, typename TTextConfig, class TOccSpec, typename TSpec>
-class Iter<Index<StringSet<TText, TTextConfig>, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >, VSTree<TopDown<TSpec> > >
-{
-public:
-
-	typedef Iter	iterator;
-
-	typedef Index<StringSet<TText, TTextConfig>, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >	TFwdIndex;
-	typedef StringSet<ModifiedString<TText, ModReverse>, TTextConfig> 						TRevText;
-	typedef Index<TRevText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >	TRevIndex;
-
-	typedef Iter<TFwdIndex, VSTree< TopDown<TSpec> > >	TFwdIndexIter;
-	typedef Iter<TRevIndex, VSTree< TopDown<TSpec> > >	TRevIndexIter;
-
-	typedef typename VertexDescriptor<TFwdIndex>::Type	TVertexDesc;
-
-	//typedef	typename HistoryStackEntry_<Iter>::Type		TStackEntry;
-	//typedef String<TStackEntry, Block<> >				TStack;
-
-	TFwdIndex const	*index;		// container of all necessary tables
-	TRevIndexIter 	*revIter;	// container of all necessary tables
-	TVertexDesc		vDesc;		// current interval in suffix array and
-								// right border of parent interval (needed in goRight)
-
-	// pseudo history stack (to go up at most one node)
-	TVertexDesc		_parentDesc;
-
-	//TStack			history;	// contains all previously visited intervals (allows to go up)
-
-//____________________________________________________________________________
-
-	Iter() : index() {}
-
-	Iter(TFwdIndex &_index):
-		index(&_index)
-	{
-		_indexRequireTopDownIteration(_index);
-		goRoot(*this);
-	}
-
-	Iter(TFwdIndex &_index, MinimalCtor):
-		index(&_index),
-		vDesc(MinimalCtor()),
-		_parentDesc(MinimalCtor()) {}
-
-	// NOTE(esiragusa): _parentDesc is unitialized
-	Iter(TFwdIndex &_index, TVertexDesc const &_vDesc):
-		index(&_index),
-		vDesc(_vDesc)
-	{
-		_indexRequireTopDownIteration(_index);
-	}
-
-	template <typename TSpec2>
-	Iter(Iter<TFwdIndex, VSTree<TopDown<TSpec2> > > const &_origin):
-		index(&container(_origin)),
-		vDesc(value(_origin)),
-		_parentDesc(nodeUp(_origin))/*,
-		history(_origin.history)*/ {}
-
-//____________________________________________________________________________
-
-	template <typename TSpec2>
-	inline Iter const &
-	operator = (Iter<TFwdIndex, VSTree<TopDown<TSpec2> > > const &_origin)
-	{
-		index = &container(_origin);
-		vDesc = value(_origin);
-		_parentDesc = nodeUp(_origin);
-		//history = _origin.history;
-		return *this;
-	}
-
-	void setRevIter(TRevIndexIter &_revIter)
-	{
-		revIter = &_revIter;
-	}
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	TRevIndexIter	bwdIter;*/
 
 //TODO:cpockrandt:documentation
 template <typename TText, class TOccSpec, typename TBidirectional, typename TSpec>
@@ -295,7 +121,7 @@ class Iter<Index<TText, BidirectionalFMIndex<TOccSpec, FMIndexConfig<TOccSpec, T
 public:
 	typedef Index<TText, BidirectionalFMIndex<TOccSpec, FMIndexConfig<TOccSpec, TBidirectional> > >	TBiIndex;
 
-	typedef ModifiedString<TText, ModReverse>											TRevText;
+	typedef typename BiFMReversedText<TText>::Type											TRevText;
 
 	typedef Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >	TFwdIndex;
 	typedef Index<TRevText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >						TRevIndex;
@@ -346,84 +172,6 @@ public:
 		fwdIter = *(&_origin.fwdIter);
 		bwdIter = *(&_origin.bwdIter);
 		return *this;
-	}
-};
-
-template <typename TText, class TOccSpec, typename TSpec>
-class Iter<Index<ModifiedString<TText, ModReverse>, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >, VSTree<TopDown<TSpec> > >
-{
-public:
-
-	typedef ModifiedString<TText, ModReverse>						TRevText;
-	typedef Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >		TRevIndex;
-	typedef Index<TRevText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >	TFwdIndex;
-
-	typedef typename VertexDescriptor<TFwdIndex>::Type	TVertexDesc;
-
-	typedef Iter										iterator;
-	typedef Iter<TFwdIndex, VSTree<TopDown<TSpec> > >	TFwdIndexIter;
-	typedef Iter<TRevIndex, VSTree<TopDown<TSpec> > >	TRevIndexIter;
-
-	//typedef	typename HistoryStackEntry_<Iter>::Type		TStackEntry;
-	//typedef String<TStackEntry, Block<> >				TStack;
-
-	TFwdIndex const	*index;		// container of all necessary tables of the forward iterator
-	TRevIndexIter 	*revIter;	// container of all necessary tables of the backward iterator
-	TVertexDesc		vDesc;		// current interval in suffix array and
-								// right border of parent interval (needed in goRight)
-
-	// pseudo history stack (to go up at most one node)
-	TVertexDesc		_parentDesc;
-
-	//TStack			history;	// contains all previously visited intervals (allows to go up)
-
-//____________________________________________________________________________
-
-	Iter() : index() {}
-
-	Iter(TFwdIndex &_index):
-		index(&_index)
-	{
-		_indexRequireTopDownIteration(_index);
-		goRoot(*this);
-	}
-
-	Iter(TFwdIndex &_index, MinimalCtor):
-		index(&_index),
-		vDesc(MinimalCtor()),
-		_parentDesc(MinimalCtor()) {}
-
-	// NOTE(esiragusa): _parentDesc is unitialized
-	Iter(TFwdIndex &_index, TVertexDesc const &_vDesc):
-		index(&_index),
-		vDesc(_vDesc)
-	{
-		_indexRequireTopDownIteration(_index);
-	}
-
-	template <typename TSpec2>
-	Iter(Iter<TFwdIndex, VSTree<TopDown<TSpec2> > > const &_origin):
-		index(&container(_origin)),
-		vDesc(value(_origin)),
-		_parentDesc(nodeUp(_origin))/*,
-		history(_origin.histor)*/ {}
-
-//____________________________________________________________________________
-
-	template <typename TSpec2>
-	inline Iter const &
-	operator = (Iter<TFwdIndex, VSTree<TopDown<TSpec2> > > const &_origin)
-	{
-		index = &container(_origin);
-		vDesc = value(_origin);
-		_parentDesc = nodeUp(_origin);
-		//history = _origin.history;
-		return *this;
-	}
-
-	void setRevIter(TRevIndexIter &_revIter)
-	{
-		revIter = &_revIter;
 	}
 };
 
@@ -435,7 +183,7 @@ public:
 	typedef Iter	iterator;
 
 	typedef Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >	TFwdIndex;
-	typedef ModifiedString<TText, ModReverse> 						TRevText;
+	typedef typename BiFMReversedText<TText>::Type											TRevText;
 	typedef Index<TRevText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >	TRevIndex;
 
 	typedef Iter<TFwdIndex, VSTree< TopDown<TSpec> > >	TFwdIndexIter;
@@ -700,7 +448,8 @@ inline bool _getNodeByChar(Iter<Index<StringSet<TText, TStringSetConfig>, FMInde
 
 // TODO:christopher: documentation, return type abstrakter
 template <typename TText, typename TTextConfig, typename TOccSpec>
-inline int _countSentinels(Index<StringSet<TText, TTextConfig>, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > > const & index,
+inline int
+_countSentinels(Index<StringSet<TText, TTextConfig>, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > > const & index,
 				Pair<typename Size<Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > > >::Type> const & range)
 {
     typedef typename Fibre<Index<StringSet<TText, TTextConfig>, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >, FibreLF>::Type	TLF;

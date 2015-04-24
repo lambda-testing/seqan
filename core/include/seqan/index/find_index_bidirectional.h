@@ -91,6 +91,145 @@ inline void genRandomStr(String<char> &s, const unsigned int len, const unsigned
 }
 
 inline bool
+testExactSearch2(unsigned int textLength, unsigned int patternLength, unsigned int alpSize, unsigned int stringSetSize, bool debug = false)
+{
+	typedef StringSet<String<char>,  Owner<ConcatDirect<> > >		TText;
+
+	typedef Index<TText, FMIndex<> >								TFMIndex;
+	typedef Iterator<TFMIndex, TopDown<> >::Type					TFMIter;
+
+	typedef Index<TText, BidirectionalFMIndex<> >					TBiFMIndex;
+	typedef Iterator<TBiFMIndex, TopDown<> >::Type	TBiFMIter;
+
+	srand(time(NULL));
+
+	TText text;
+	TText revText;
+
+	unsigned int i;
+
+	for (i = 0; i < stringSetSize; ++i) {
+		String<char> _text, _revText;
+		genRandomStr(_text, textLength, alpSize);
+		appendValue(text, _text);
+
+		resize(_revText, textLength);
+		for (unsigned int j = 0; j < textLength; ++j)
+		{
+			_revText[j] = _text[textLength - j - 1];
+		}
+		appendValue(revText, _revText);
+	}
+	String<char> pattern;
+	genRandomStr(pattern, patternLength, alpSize);
+
+	ModifiedString< String<char>, ModReverse > revPattern(pattern);
+
+	TFMIndex fmIndex1(text);
+	TFMIndex fmIndex2(revText);
+	TFMIter fm1(fmIndex1);
+	TFMIter fm2(fmIndex2);
+
+	/*const char *fileName = "/home/chris/indexTest/myindex";
+	TBiFMIndex bifmIndexOpen1(text);
+	TBiFMIndex bifmIndexOpen2(text);
+
+	indexRequire(bifmIndexOpen1.fwd, FibreSA());
+	indexRequire(bifmIndexOpen1.rev, FibreSA());
+
+	indexRequire(bifmIndexOpen2.fwd, FibreSA());
+	indexRequire(bifmIndexOpen2.rev, FibreSA());
+
+	system("exec rm -r /home/chris/indexTest/ TODO_SPACE_RAUS *");
+
+	save(bifmIndexOpen1, fileName);
+	save(bifmIndexOpen2, fileName);*/
+
+	TBiFMIndex bifmIndex1(text);
+	TBiFMIndex bifmIndex2(text);
+
+	/*open(bifmIndex1, fileName);
+	open(bifmIndex2, fileName)*/;
+
+	TBiFMIter bifm1(bifmIndex1);
+	TBiFMIter bifm2(bifmIndex2);
+
+
+	String<char> textOutput("");
+	String<char> revTextOutput("");
+	for (i = 0; i < stringSetSize; ++i)
+	{
+		append(textOutput, text[i]);
+		append(revTextOutput, revText[i]);
+		if (i + 1 < stringSetSize)
+		{
+			append(textOutput, ".");
+			append(revTextOutput, ".");
+		}
+	}
+
+	if (debug)
+		std::cout << "Text: " << textOutput << "(" << revTextOutput << "), Pattern: " << pattern << std::endl
+				<< "FM1: " << fm1.vDesc.range.i1 << "-" << fm1.vDesc.range.i2 << ", FM2: " <<
+					fm2.vDesc.range.i1 << "-" << fm2.vDesc.range.i2 << std::endl;
+
+	bool res1 = true, res2 = true, res3 = true, res4 = true;
+
+	for (i = 0; i < patternLength; ++i)
+	{
+		res1 &= goDown(fm1, pattern[patternLength - i - 1]);
+		res2 &= goDown(fm2, pattern[i]);
+		res3 &= rightExtend(bifm1, pattern[i]);
+		res4 &= leftExtend(bifm2, pattern[patternLength - i - 1]);
+
+		if (debug)
+			std::cout << "Res: " << res1 << ", " << res2 << ", " << res3 << ", " << res4 << std::endl;
+
+		if (debug)
+			std::cout << "FM1: " << fm1.vDesc.range.i1 << "-" << fm1.vDesc.range.i2 << " (" << pattern[patternLength - i - 1] << "), FM2: " <<
+			fm2.vDesc.range.i1 << "-" << fm2.vDesc.range.i2 << " (" << pattern[i] << ")" << std::endl << "- BFM1 fwd: " <<
+			bifm1.fwdIter.vDesc.range.i1 << "-" << bifm1.fwdIter.vDesc.range.i2 << " (" << pattern[i] << "), BFM1 bwd: " <<
+			bifm1.bwdIter.vDesc.range.i1 << "-" << bifm1.bwdIter.vDesc.range.i2 << " (" << pattern[i] << ")" << std::endl << "- BFM2 fwd: " <<
+			bifm2.fwdIter.vDesc.range.i1 << "-" << bifm2.fwdIter.vDesc.range.i2 << " (" << pattern[patternLength - i - 1] << "), BFM2 bwd: " <<
+			bifm2.bwdIter.vDesc.range.i1 << "-" << bifm2.bwdIter.vDesc.range.i2 << " (" << pattern[patternLength - i - 1] << ")" << std::endl;
+
+		if (i == patternLength-1)
+		{
+			if (!(res1 == res2 && res2 == res3 && res3 == res4))
+			{
+				std::cerr << "Error1 (" << textOutput << ", " << pattern << ")!" << std::endl;
+				return 1;
+			}
+			else if (res1 == 1 && !( // all res are not 0!
+				fm1.vDesc.range.i1 == bifm1.fwdIter.vDesc.range.i1 &&
+				fm1.vDesc.range.i1 == bifm2.fwdIter.vDesc.range.i1 &&
+				fm2.vDesc.range.i1 == bifm1.bwdIter.vDesc.range.i1 &&
+				fm2.vDesc.range.i1 == bifm2.bwdIter.vDesc.range.i1 &&
+				fm1.vDesc.range.i2 == bifm1.fwdIter.vDesc.range.i2 &&
+				fm1.vDesc.range.i2 == bifm2.fwdIter.vDesc.range.i2 &&
+				fm2.vDesc.range.i2 == bifm1.bwdIter.vDesc.range.i2 &&
+				fm2.vDesc.range.i2 == bifm2.bwdIter.vDesc.range.i2
+			))
+			{
+				std::cerr << "Error2 (" << textOutput << ", " << pattern << "):"
+						<< (fm1.vDesc.range.i1 == bifm1.fwdIter.vDesc.range.i1) << ""
+						<< (fm1.vDesc.range.i1 == bifm2.fwdIter.vDesc.range.i1) << ""
+						<< (fm2.vDesc.range.i1 == bifm1.bwdIter.vDesc.range.i1) << ""
+						<< (fm2.vDesc.range.i1 == bifm2.bwdIter.vDesc.range.i1) << ""
+						<< (fm1.vDesc.range.i2 == bifm1.fwdIter.vDesc.range.i2) << ""
+						<< (fm1.vDesc.range.i2 == bifm2.fwdIter.vDesc.range.i2) << ""
+						<< (fm2.vDesc.range.i2 == bifm1.bwdIter.vDesc.range.i2) << ""
+						<< (fm2.vDesc.range.i2 == bifm2.bwdIter.vDesc.range.i2) << ""
+						<< std::endl;
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+inline bool
 testExactSearch(unsigned int textLength, unsigned int patternLength, unsigned int alpSize, bool const debug = 0)
 {
 	typedef String<char>											TText;
@@ -99,9 +238,8 @@ testExactSearch(unsigned int textLength, unsigned int patternLength, unsigned in
 	typedef Iterator<TFMIndex, TopDown<> >::Type					TFMIter;
 
 	typedef Index<TText, BidirectionalFMIndex<> >					TBiFMIndex;
-	typedef Iterator<TBiFMIndex, TopDown<ParentLinks<> > >::Type	TBiFMIter;
+	typedef Iterator<TBiFMIndex, TopDown<> >::Type	TBiFMIter;
 
-	const char *fileName = "/home/chris/indexTest/myindex";
 
 	unsigned int i;
 	String<char> text;
@@ -126,6 +264,8 @@ testExactSearch(unsigned int textLength, unsigned int patternLength, unsigned in
 	TFMIter fm1(fmIndex1);
 	TFMIter fm2(fmIndex2);
 
+	/*const char *fileName = "/home/chris/indexTest/myindex";
+
 	TBiFMIndex bifmIndexOpen1(text);
 	TBiFMIndex bifmIndexOpen2(text);
 
@@ -135,16 +275,16 @@ testExactSearch(unsigned int textLength, unsigned int patternLength, unsigned in
 	indexRequire(bifmIndexOpen2.fwd, FibreSA());
 	indexRequire(bifmIndexOpen2.rev, FibreSA());
 
-	system("exec rm -r /home/chris/indexTest/*");
+	system("exec rm -r /home/chris/indexTest/ TODO SPACE RAUS *");
 
 	save(bifmIndexOpen1, fileName);
-	save(bifmIndexOpen2, fileName);
+	save(bifmIndexOpen2, fileName);*/
 
 	TBiFMIndex bifmIndex1(text);
 	TBiFMIndex bifmIndex2(text);
 
-	open(bifmIndex1, fileName);
-	open(bifmIndex2, fileName);
+	/*open(bifmIndex1, fileName);
+	open(bifmIndex2, fileName);*/
 
 	TBiFMIter bifm1(bifmIndex1);
 	TBiFMIter bifm2(bifmIndex2);
@@ -200,6 +340,124 @@ testExactSearch(unsigned int textLength, unsigned int patternLength, unsigned in
 
 	return 0;
 }
+
+inline bool
+testExactSearch2(unsigned int textLength, unsigned int patternLength, unsigned int alpSize, unsigned int stringSetSize)
+{
+	typedef StringSet<String<char>,  Owner<ConcatDirect<> > >		TText;
+
+	typedef Index<TText, FMIndex<> >								TFMIndex;
+	typedef Iterator<TFMIndex, TopDown<> >::Type					TFMIter;
+
+	typedef Index<TText, BidirectionalFMIndex<> >					TBiFMIndex;
+	typedef Iterator<TBiFMIndex, TopDown<ParentLinks<> > >::Type	TBiFMIter;
+
+	srand(time(NULL));
+
+	TText text;
+	TText revText;
+
+	unsigned int i;
+
+		for (i = 0; i < stringSetSize; ++i) {
+		String<char> _text, _revText;
+		genRandomStr(_text, textLength, alpSize);
+		appendValue(text, _text);
+
+		resize(_revText, textLength);
+		for (int j = 0; j < textLength; ++j)
+		{
+			_revText[i] = _text[textLength - i - 1];
+		}
+		appendValue(revText, _revText);
+	}
+
+	String<char> pattern;
+	genRandomStr(pattern, patternLength, alpSize);
+
+	ModifiedString< String<char>, ModReverse > revPattern(pattern);
+
+	TFMIndex fmIndex1(text);
+	TFMIndex fmIndex2(revText);
+	TFMIter fm1(fmIndex1);
+	TFMIter fm2(fmIndex2);
+
+	/*const char *fileName = "/home/chris/indexTest/myindex";
+	TBiFMIndex bifmIndexOpen1(text);
+	TBiFMIndex bifmIndexOpen2(text);
+
+	indexRequire(bifmIndexOpen1.fwd, FibreSA());
+	indexRequire(bifmIndexOpen1.rev, FibreSA());
+
+	indexRequire(bifmIndexOpen2.fwd, FibreSA());
+	indexRequire(bifmIndexOpen2.rev, FibreSA());
+
+	system("exec rm -r /home/chris/indexTest/*");
+
+	save(bifmIndexOpen1, fileName);
+	save(bifmIndexOpen2, fileName);*/
+
+	TBiFMIndex bifmIndex1(text);
+	TBiFMIndex bifmIndex2(text);
+
+	/*open(bifmIndex1, fileName);
+	open(bifmIndex2, fileName)*/;
+
+	TBiFMIter bifm1(bifmIndex1);
+	TBiFMIter bifm2(bifmIndex2);
+
+	if (debug)
+		std::cout << "Text: " << text << "(" << revText << "), Pattern: " << pattern << std::endl
+				<< "FM1: " << fm1.vDesc.range.i1 << "-" << fm1.vDesc.range.i2 << ", FM2: " <<
+					fm2.vDesc.range.i1 << "-" << fm2.vDesc.range.i2 << std::endl;
+
+	bool res1 = true, res2 = true, res3 = true, res4 = true;
+
+	for (i = 0; i < patternLength; ++i)
+	{
+		res1 &= goDown(fm1, pattern[patternLength - i - 1]);
+		res2 &= goDown(fm2, pattern[i]);
+		res3 &= rightExtend(bifm1, pattern[i]);
+		res4 &= leftExtend(bifm2, pattern[patternLength - i - 1]);
+
+		if (debug)
+			std::cout << "Res: " << res1 << ", " << res2 << ", " << res3 << ", " << res4 << std::endl;
+
+		if (debug)
+			std::cout << "FM1: " << fm1.vDesc.range.i1 << "-" << fm1.vDesc.range.i2 << " (" << pattern[patternLength - i - 1] << "), FM2: " <<
+			fm2.vDesc.range.i1 << "-" << fm2.vDesc.range.i2 << " (" << pattern[i] << ")" << std::endl << "- BFM1 fwd: " <<
+			bifm1.fwdIter.vDesc.range.i1 << "-" << bifm1.fwdIter.vDesc.range.i2 << " (" << pattern[i] << "), BFM1 bwd: " <<
+			bifm1.bwdIter.vDesc.range.i1 << "-" << bifm1.bwdIter.vDesc.range.i2 << " (" << pattern[i] << ")" << std::endl << "- BFM2 fwd: " <<
+			bifm2.fwdIter.vDesc.range.i1 << "-" << bifm2.fwdIter.vDesc.range.i2 << " (" << pattern[patternLength - i - 1] << "), BFM2 bwd: " <<
+			bifm2.bwdIter.vDesc.range.i1 << "-" << bifm2.bwdIter.vDesc.range.i2 << " (" << pattern[patternLength - i - 1] << ")" << std::endl;
+
+		if (i == patternLength-1)
+		{
+			if (!(res1 == res2 && res2 == res3 && res3 == res4))
+			{
+				std::cerr << "Error1 (" << text << ", " << pattern << ")!" << std::endl;
+				return 1;
+			}
+			else if (res1 == 1 && !( // all res are not 0!
+				fm1.vDesc.range.i1 == bifm1.fwdIter.vDesc.range.i1 &&
+				fm1.vDesc.range.i1 == bifm2.fwdIter.vDesc.range.i1 &&
+				fm2.vDesc.range.i1 == bifm1.bwdIter.vDesc.range.i1 &&
+				fm2.vDesc.range.i1 == bifm2.bwdIter.vDesc.range.i1 &&
+				fm1.vDesc.range.i2 == bifm1.fwdIter.vDesc.range.i2 &&
+				fm1.vDesc.range.i2 == bifm2.fwdIter.vDesc.range.i2 &&
+				fm2.vDesc.range.i2 == bifm1.bwdIter.vDesc.range.i2 &&
+				fm2.vDesc.range.i2 == bifm2.bwdIter.vDesc.range.i2
+			))
+			{
+				std::cerr << "Error2 (" << text << ", " << pattern << ")!" << std::endl;
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
 template <typename TText, class TOccSpec, class TIndexSpec, typename TSpec>
 inline bool
 _rightExtendWithLargestRange(Iter<Index<TText, BidirectionalFMIndex<TOccSpec, TIndexSpec> >, VSTree<TopDown<ParentLinks<TSpec> > > > & it) {

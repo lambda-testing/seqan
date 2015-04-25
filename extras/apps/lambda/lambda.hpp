@@ -701,10 +701,12 @@ template <typename BackSpec, typename TLocalHolder>
 inline void
 __search(TLocalHolder & lH)
 {
-    /*if (lH.options.doubleIndexing)
+	//double mystart = std::clock();
+    if (lH.options.doubleIndexing)
         __searchDoubleIndex<BackSpec>(lH);
-    else*/
+    else
         __searchSingleIndex<BackSpec>(lH);
+	//std::cout << "\t\t" << (std::clock() - mystart) << std::endl;
 }
 
 template <typename TLocalHolder>

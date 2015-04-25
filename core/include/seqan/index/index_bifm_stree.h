@@ -47,28 +47,6 @@ namespace seqan {
 // Class BidirectionalFMIndex-Iter
 // ----------------------------------------------------------------------------
 
-
-//template<typename>
-//struct is_string_set : std::false_type {};
-
-//template<typename TText, typename TConfig>
-//struct is_string_set<StringSet<TText, TConfig> > : std::true_type {};
-
-//template < typename TText >
-//struct BiFMReversedText {
-	//typedef String< typename Size<TIndex>::Type > Type;
-//};
-
-//template < typename TIndex, typename TSpec >
-//struct Fibre<TIndex const, TSpec> {
-//	typedef typename Fibre<TIndex, TSpec>::Type const Type;
-//};
-
-//template < typename TText >
-//struct BiFMReversedText {
-	//typedef String< typename Size<TIndex>::Type > Type;
-//};
-
 template <typename TText>
 struct BiFMReversedText
 {
@@ -96,24 +74,6 @@ struct BiFMReversedText<ModifiedString<TText, ModReverse> >
 // ----------------------------------------------------------------------------
 // Class BidirectionalFMIndex-Iter
 // ----------------------------------------------------------------------------
-
-//TODO:cpockrandt:documentation
-    //static bool constexpr isStringSet = is_string_set<TText>::value;
-    //using TText2 = typename std::conditional<isStringSet, StringSet<ModifiedString<TText, ModReverse>, >, TText>::type;
-
-	/*typedef Index<TText, BidirectionalFMIndex<TOccSpec, FMIndexConfig<TOccSpec, TBidirectional> > >	TBiIndex;
-
-	typedef typename BiFMReversedText<TText>::Type									TRevText;
-
-	typedef Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >	TFwdIndex;
-	typedef Index<TRevText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >						TRevIndex;
-
-	typedef Iter<TFwdIndex, VSTree<TopDown<TSpec> > >												TFwdIndexIter;
-	typedef Iter<TRevIndex, VSTree<TopDown<TSpec> > >												TRevIndexIter;
-
-	TFwdIndexIter	fwdIter;
-	TRevIndexIter	bwdIter;*/
-
 //TODO:cpockrandt:documentation
 template <typename TText, class TOccSpec, typename TBidirectional, typename TSpec>
 class Iter<Index<TText, BidirectionalFMIndex<TOccSpec, FMIndexConfig<TOccSpec, TBidirectional> > >, VSTree<TopDown<TSpec> > >
@@ -254,198 +214,6 @@ public:
 	}
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*template <typename TText, class TOccSpec, class TLengthSum, typename TSpec>
-class Iter<Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, TLengthSum, FMBidirectional> > >, VSTree<TopDown<ParentLinks<TSpec> > > >:
-    public Iter<Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, TLengthSum, FMBidirectional> > >, VSTree<TopDown<> > >
-{
-public:
-	typedef Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, TLengthSum, FMBidirectional> > >	TIndex;
-    typedef Iter<TIndex, VSTree<TopDown<> > >	TBase;
-    typedef typename HistoryStack_<Iter>::Type	TStack;
-    typedef Iter								iterator;
-
-    TStack            history;    // contains all previously visited intervals (allows to go up)
-
-//____________________________________________________________________________
-
-    SEQAN_HOST_DEVICE
-    Iter() :
-        TBase() {}
-
-    SEQAN_HOST_DEVICE
-    Iter(TIndex &_index):
-        TBase(_index) {}
-
-    SEQAN_HOST_DEVICE
-    Iter(TIndex &_index, MinimalCtor):
-        TBase(_index, MinimalCtor()) {}
-
-    SEQAN_HOST_DEVICE
-    Iter(Iter const &_origin):
-        TBase((TBase const &)_origin),
-        history(_origin.history) {}
-
-//____________________________________________________________________________
-
-    SEQAN_HOST_DEVICE inline
-    Iter const &
-    operator = (Iter const &_origin)
-    {
-        *(TBase*)(this) = _origin;
-        history = _origin.history;
-        return *this;
-    }
-};
-
-template <typename TText, class TOccSpec, class TLengthSum, typename TSpec>
-class Iter<Index<ModifiedString<TText, ModReverse>, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, TLengthSum, FMBidirectional> > >, VSTree<TopDown<ParentLinks<TSpec> > > >:
-    public Iter<Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, TLengthSum, FMBidirectional> > >, VSTree<TopDown<> > >
-{
-public:
-	typedef Index<ModifiedString<TText, ModReverse>, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, TLengthSum, FMBidirectional> > >	TIndex;
-    typedef Iter<TIndex, VSTree<TopDown<> > >	TBase;
-    typedef typename HistoryStack_<Iter>::Type	TStack;
-    typedef Iter								iterator;
-
-    TStack            history;    // contains all previously visited intervals (allows to go up)
-
-//____________________________________________________________________________
-
-    SEQAN_HOST_DEVICE
-    Iter() :
-        TBase() {}
-
-    SEQAN_HOST_DEVICE
-    Iter(TIndex &_index):
-        TBase(_index) {}
-
-    SEQAN_HOST_DEVICE
-    Iter(TIndex &_index, MinimalCtor):
-        TBase(_index, MinimalCtor()) {}
-
-    SEQAN_HOST_DEVICE
-    Iter(Iter const &_origin):
-        TBase((TBase const &)_origin),
-        history(_origin.history) {}
-
-//____________________________________________________________________________
-
-    SEQAN_HOST_DEVICE inline
-    Iter const &
-    operator = (Iter const &_origin)
-    {
-        *(TBase*)(this) = _origin;
-        history = _origin.history;
-        return *this;
-    }
-};*/
-
-
-
-
-
-
-
-// ============================================================================
-// Functions
-// ============================================================================
-
-// ----------------------------------------------------------------------------
-// Function _getNodeByChar()                                         [Iterator]
-// ----------------------------------------------------------------------------
-
-// TODO:christopher: simplify, documentation, commands
-/*template <typename TText, typename TStringSetConfig, typename TOccSpec, class TSpec, typename TChar>
-inline bool _getNodeByChar(Iter<Index<StringSet<TText, TStringSetConfig>, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >, VSTree<TopDown<TSpec> > > const & it,
-                           typename VertexDescriptor<Index<StringSet<TText, TStringSetConfig>, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > > >::Type const & vDesc,
-                           Pair<typename Size<Index<StringSet<TText, TStringSetConfig>, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > > >::Type> & _range,
-                           TChar c)
-{
-    typedef Index<StringSet<TText, TStringSetConfig>, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >        TIndex;
-    typedef typename Value<TIndex>::Type                        TAlphabet;
-
-	typedef typename Fibre<TIndex, FibreLF>::Type               TLF;
-
-	Pair<typename Size<Index<StringSet<TText, TStringSetConfig>, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > > >::Type> tmpRange;
-
-	TIndex const & index = container(it);
-	TLF const & lf = indexLF(index);
-
-	unsigned int sum = 0;
-	int alpSize = ValueSize<TAlphabet>::VALUE;
-
-	// TODO: int nehmen statt TAlphabet?
-	for (TAlphabet _d = 0; _d < std::min(alpSize, (int) c); ++_d)
-	{
-		unsigned int i1, i2;
-		TChar d = TAlphabet(_d);
-
-		tmpRange = range(index, vDesc);
-		i1 = lf(tmpRange.i1, d);
-		i2 = lf(tmpRange.i2, d);
-
-		if (i1 < i2)
-			sum += i2 - i1;
-	}
-
-	bool isRoot = _isRoot(vDesc);
-
-	_range = range(index, vDesc);
-	_range.i1 = lf(_range.i1, c);
-	_range.i2 = lf(_range.i2, c);
-
-    if (_range.i1 < _range.i2)
-    {
-    	// historyPush nicht änderbar, wg. index_fm_stree.h Z. 300 ff. und eigener _getNodeByChar-Impl.! Gibt sonst Probleme mit der Reihenfolge
-        _historyPush(*it.revIter); // "it" itself is already pushed in the wrapping method
-
-		if (isRoot)
-		{
-			value(*it.revIter).range.i1 = _range.i1;
-			value(*it.revIter).range.i2 = _range.i2;
-		}
-		else
-		{
-			// TODO:chris
-			typedef typename Fibre<TLF, FibreSentinels>::Type TSentinels;
-			TSentinels sentinelPos = lf.sentinels;//index.lfTable.occTable.sentinelPosition;
-
-			sum += getRank(sentinelPos, vDesc.range.i2 - 1) - getRank(sentinelPos, vDesc.range.i1 - 1);
-			value(*it.revIter).range.i1 += sum;
-			value(*it.revIter).range.i2 = value(*it.revIter).range.i1 + (_range.i2 - _range.i1);
-		}
-		value(*it.revIter).lastChar = c;
-		value(*it.revIter).repLen++;
-        return true;
-    }
-
-    return false;
-}*/
-
 // TODO:christopher: documentation, return type abstrakter
 template <typename TText, typename TTextConfig, typename TOccSpec>
 inline int
@@ -453,11 +221,8 @@ _countSentinels(Index<StringSet<TText, TTextConfig>, FMIndex<TOccSpec, FMIndexCo
 				Pair<typename Size<Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > > >::Type> const & range)
 {
     typedef typename Fibre<Index<StringSet<TText, TTextConfig>, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >, FibreLF>::Type	TLF;
-	typedef typename Fibre<TLF, FibreSentinels>::Type TSentinels;
-    TLF const & lf = indexLF(index);
-
-	TSentinels sentinelPos = lf.sentinels;
-	return getRank(sentinelPos, range.i2 - 1) - getRank(sentinelPos, range.i1 - 1);
+	TLF const & lf = indexLF(index);
+	return getRank(lf.sentinels, range.i2 - 1) - getRank(lf.sentinels, range.i1 - 1);
 }
 
 // TODO:christopher: documentation, return type abstrakter
@@ -486,13 +251,16 @@ inline bool _getNodeByChar(Iter<Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOc
     typedef typename Size<TIndex>::Type													TRangeSize;
     typedef Pair<TRangeSize>															TRange;
 
+	//double mystart = std::clock();
+
 	TIndex const & index = container(it);
 	TLF const & lf = indexLF(index);
     TRange tmpRange;
 
 	unsigned int sum = 0;
-	int alpSize = ValueSize<TAlphabet>::VALUE;
+	int const alpSize = ValueSize<TAlphabet>::VALUE;
 
+	//std::cout << "\t\t\t\t\t std::min(" << alpSize << ", " << ((int) c) << std::endl;
 	// TODO: int nehmen statt TAlphabet?
 	for (TAlphabet _d = 0; _d < std::min(alpSize, (int) c); ++_d)
 	{
@@ -506,33 +274,50 @@ inline bool _getNodeByChar(Iter<Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOc
 		if (i1 < i2)
 			sum += i2 - i1;
 	}
+	//std::cout << "\t\tbia:" << (std::clock() - mystart) << std::endl;
+	//mystart = std::clock();
 
 	bool isRoot = _isRoot(vDesc);
 	_range = range(index, vDesc);
 	_range.i1 = lf(_range.i1, c);
 	_range.i2 = lf(_range.i2, c);
 
+	//std::cout << "\t\tbib:" << (std::clock() - mystart) << std::endl;
+	//mystart = std::clock();
+
     if (_range.i1 < _range.i2)
     {
     	// historyPush nicht änderbar, wg. index_fm_stree.h Z. 300 ff. und eigener _getNodeByChar-Impl.! Gibt sonst Probleme mit der Reihenfolge
         _historyPush(*it.revIter); // "it" itself is already pushed in the wrapping method
 
+    	//std::cout << "\t\tbic:" << (std::clock() - mystart) << std::endl;
+    	//mystart = std::clock();
+
 		if (isRoot)
 		{
 			value(*it.revIter).range.i1 = _range.i1;
 			value(*it.revIter).range.i2 = _range.i2;
+			//std::cout << "\t\tbid:" << (std::clock() - mystart) << std::endl;
+			//mystart = std::clock();
 		}
 		else
 		{
 			sum += _countSentinels(index, vDesc.range);
+			//std::cout << "\t\tbie:" << (std::clock() - mystart) << std::endl;
+			//mystart = std::clock();
 			value(*it.revIter).range.i1 += sum;
 			value(*it.revIter).range.i2 = value(*it.revIter).range.i1 + (_range.i2 - _range.i1);
+			//std::cout << "\t\tbif:" << (std::clock() - mystart) << std::endl;
+			//mystart = std::clock();
 		}
 		value(*it.revIter).lastChar = c;
 		value(*it.revIter).repLen++;
+
+		//std::cout << "\t\tbiy:" << (std::clock() - mystart) << std::endl;
         return true;
     }
 
+    //std::cout << "\t\tbiz:" << (std::clock() - mystart) << std::endl;
     return false;
 }
 
@@ -615,13 +400,15 @@ repLength(Iter<Index<TText, BidirectionalFMIndex<TOccSpec, TIndexSpec> >, VSTree
 
 template <typename TText, typename TOccSpec, typename TIndexSpec, typename TSpec>
 SEQAN_HOST_DEVICE inline typename VertexDescriptor<Index<TText, FMIndex<TOccSpec, TIndexSpec> > >::Type &
-value(Iter<Index<TText, BidirectionalFMIndex<TOccSpec, TIndexSpec> >, VSTree<TopDown<TSpec> > > & it) {
+value(Iter<Index<TText, BidirectionalFMIndex<TOccSpec, TIndexSpec> >, VSTree<TopDown<TSpec> > > & it)
+{
 	return it.fwdIter.vDesc;
 }
 
 template <typename TText, typename TOccSpec, typename TIndexSpec, typename TSpec>
 SEQAN_HOST_DEVICE inline typename VertexDescriptor<Index<TText, FMIndex<TOccSpec, TIndexSpec> > >::Type const &
-value(Iter<Index<TText, BidirectionalFMIndex<TOccSpec, TIndexSpec> >, VSTree<TSpec> > const &it) {
+value(Iter<Index<TText, BidirectionalFMIndex<TOccSpec, TIndexSpec> >, VSTree<TSpec> > const &it)
+{
 	return it.fwdIter.vDesc;
 }
 
@@ -657,7 +444,7 @@ bool goUp(Iter<Index<TText, BidirectionalFMIndex<TOccSpec, TIndexSpec> >, VSTree
 	//return true;
 }*/
 
-template <typename TText, typename TOccSpec, typename TIndexSpec, typename TSpec>
+/*template <typename TText, typename TOccSpec, typename TIndexSpec, typename TSpec>
 bool goUp(Iter<Index<TText, BidirectionalFMIndex<TOccSpec, TIndexSpec> >, VSTree<TopDown<ParentLinks<TSpec> > > > & it)
 {
 	//if (isRoot(it)) return false;
@@ -677,7 +464,7 @@ bool goUp(Iter<Index<TText, BidirectionalFMIndex<TOccSpec, TIndexSpec> >, VSTree
 	//value(*it.revIter).lastChar = back((*it.revIter).history).lastChar;
 	//_historyPop((*it.revIter));
 	//return true;
-}
+}*/
 
 
 

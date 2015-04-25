@@ -59,8 +59,7 @@ struct DefaultFind<Index<THaystack, THaystackSpec>, TPattern>
 // Function _findImpl(..., Backtracking<Exact>)
 // ----------------------------------------------------------------------------
 
-template <typename TState, typename TIndex, typename TNeedle,
-          typename TThreshold, typename TDelegate, typename TSpec>
+template <typename TState, typename TIndex, typename TNeedle, typename TThreshold, typename TDelegate, typename TSpec>
 SEQAN_FUNC_ENABLE_IF(IsSequence<TNeedle>, void)
 _findImpl(TState & /* state */,
           TIndex & index,

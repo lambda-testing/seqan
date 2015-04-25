@@ -688,13 +688,22 @@ realMain(LambdaOptions      const & options,
             }
 
             // search
+
+            //double mystart;
+
+            //mystart = std::clock();
             search(localHolder);
+            //std::cout << "c1: " << (std::clock() - mystart) << std::endl; //  / (double) CLOCKS_PER_SEC
 
             // sort
+            //mystart = std::clock();
             sortMatches(localHolder);
+            //std::cout << "\t\tc2: " << (std::clock() - mystart) << std::endl; //  / (double) CLOCKS_PER_SEC
 
             // extend
+            //mystart = std::clock();
             res = iterateMatches(stream, localHolder);
+            //std::cout << "\t\t\t\tc3: " << (std::clock() - mystart) << std::endl; //  / (double) CLOCKS_PER_SEC
             if (res)
                 continue;
 

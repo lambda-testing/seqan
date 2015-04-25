@@ -143,6 +143,7 @@ class Index<TText, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec2, TBidirectio
 };*/
 
 // TODO:cpockrandt: actually we don't need them for FM indices ...
+
 template <typename TText, typename TSpec, typename TConfig>
 inline typename Fibre<Index<TText, FMIndex<TSpec, TConfig> >, FibreText>::Type & indexText(Index<TText, BidirectionalFMIndex<TSpec, TConfig> > &index) { return indexText(index.fwd); }
 template <typename TText, typename TSpec, typename TConfig>
@@ -152,7 +153,6 @@ template <typename TText, typename TSpec, typename TSpec2, typename TBidirection
 SEQAN_HOST_DEVICE inline typename Fibre<Index<TText, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >, FibreSA>::Type & indexSA(Index<TText, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec2, TBidirectional> > > &index) { return indexSA(index.fwd); }
 template <typename TText, typename TSpec, typename TSpec2, typename TBidirectional>
 SEQAN_HOST_DEVICE inline typename Fibre<Index<TText, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > > const, FibreSA>::Type & indexSA(Index<TText, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec2, TBidirectional> > > const &index) { return indexSA(index.fwd); }
-
 
 // This function can be used to open a previously saved index.
 template <typename TText, typename TSpec, typename TConfig>

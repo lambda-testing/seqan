@@ -6,3 +6,5 @@ sandbox
 !sandbox/CMakeLists.txt
 *.pyc
 *~
+CMakeFiles
+CMakeCache.txt

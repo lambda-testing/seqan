@@ -138,42 +138,35 @@ realMain(LambdaOptions      const & options,
 
 int main(int argc, char const ** argv)
 {
+	//measureCPUTime();
+	//return 0;
 	/*for (int n = 0; n < 20; ++n)
 	{
-		//break;
 		std::cout << "n = " << n << " ";
 		for (int p = 0; p <= n; ++p)
 		{
 			std::cout << ".";
-			std::cout.flush();
 			for (int i = 0; i < 100; ++i)
 			{
-				if (testExactSearch(n, p, 4, false))
+				if (testExactSearch(n, p, false))
 					return 1;
-				if (testExactSearch2(n, p, 4, 1, false))
+				if (testExactSearch2(n, p, 1, false))
 					return 1;
-				if (testExactSearch2(n, p, 4, 2, false))
+				if (testExactSearch2(n, p, 2, false))
 					return 1;
-				if (testExactSearch2(n, p, 4, 3, false))
-					return 1;
-				if (testExactSearch2(n, p, 4, 4, false))
-					return 1;
-				if (testExactSearch2(n, p, 4, 5, false))
+				if (testExactSearch2(n, p, 5, false))
 					return 1;
 			}
 		}
 		std::cout << std::endl;
 	}
 	std::cout << "n = 10000, p = 30" << std::endl;
-	for (int i = 0; i < 1000; ++i)
+	for (int i = 0; i < 100; ++i)
 	{
 		std::cout << i << std::endl;
-		std::cout.flush();
-		if (testExactSearch(10000, 50, 4, false))
+		if (testExactSearch(10000, 50, false))
 			break;
-		if (testExactSearch2(10000, 50, 4, 10, false))
-			break;
-		if (testExactSearch2(10000, 50, 4, 100, false))
+		if (testExactSearch2(10000, 50, 100, false))
 			break;
 	}
 
@@ -689,21 +682,21 @@ realMain(LambdaOptions      const & options,
 
             // search
 
-            //double mystart;
+            double mystart, c1, c3;
 
-            //mystart = std::clock();
+            mystart = std::clock();
             search(localHolder);
-            //std::cout << "c1: " << (std::clock() - mystart) << std::endl; //  / (double) CLOCKS_PER_SEC
+            c1 = std::clock() - mystart;
 
             // sort
-            //mystart = std::clock();
             sortMatches(localHolder);
-            //std::cout << "\t\tc2: " << (std::clock() - mystart) << std::endl; //  / (double) CLOCKS_PER_SEC
 
             // extend
-            //mystart = std::clock();
+            mystart = std::clock();
             res = iterateMatches(stream, localHolder);
-            //std::cout << "\t\t\t\tc3: " << (std::clock() - mystart) << std::endl; //  / (double) CLOCKS_PER_SEC
+            c3 = std::clock() - mystart;
+
+            std::cout << "" << c1 << "\t" << c3 << std::endl;
             if (res)
                 continue;
 

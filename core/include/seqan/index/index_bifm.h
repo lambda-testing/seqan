@@ -50,6 +50,30 @@ class BidirectionalFMIndex;
 // Classes
 // ==========================================================================
 
+template <typename TText>
+struct BiFMReversedText
+{
+    typedef ModifiedString<TText, ModReverse> Type;
+};
+
+template <typename TText, typename TTextConfig>
+struct BiFMReversedText<StringSet<TText, TTextConfig> >
+{
+    typedef StringSet<ModifiedString<TText, ModReverse>, TTextConfig> Type;
+};
+
+template <typename TText, typename TTextConfig>
+struct BiFMReversedText<StringSet<ModifiedString<TText, ModReverse>, TTextConfig> >
+{
+    typedef StringSet<TText, TTextConfig> Type;
+};
+
+template <typename TText>
+struct BiFMReversedText<ModifiedString<TText, ModReverse> >
+{
+    typedef TText Type;
+};
+
 // ----------------------------------------------------------------------------
 // Class BidirectionalFMIndex
 // ----------------------------------------------------------------------------
@@ -76,38 +100,16 @@ class BidirectionalFMIndex;
  * suffix array and the LF table, which provides all necessary information for the LF mapping.
  */
 
-template <typename TText, typename TIrgendwas, typename TSpec, typename TSpec2, typename TBidirectional>
-class Index<StringSet<TText, TIrgendwas>, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec2, TBidirectional> > >
-{
-	typedef ModifiedString<TText, ModReverse>				TRevText;
-	typedef Index<StringSet<TRevText, TIrgendwas>, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >		TRevIndex;
-	typedef Index<StringSet<TText, TIrgendwas>	 , FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >			TFwdIndex;
-
-	public:
-
-	StringSet<TRevText, TIrgendwas>	revText;
-	TRevIndex		rev;
-	TFwdIndex		fwd;
-
-	Index()	{}
-
-	Index(StringSet<TText, TIrgendwas> & text) :
-		revText(text),
-		rev(revText),
-		fwd(text)
-	{ }
-};
-
 template <typename TText, typename TSpec, typename TSpec2, typename TBidirectional>
 class Index<TText, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec2, TBidirectional> > >
 {
-	typedef ModifiedString<TText, ModReverse>				TRevText;
-	typedef Index<TRevText, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >		TRevIndex;
-	typedef Index<TText, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >			TFwdIndex;
+	typedef typename BiFMReversedText<TText>::Type										TRevText;
+	typedef Index<TRevText, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >	TRevIndex;
+	typedef Index<TText, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >		TFwdIndex;
 
 	public:
 
-	TRevText	revText;
+	TRevText 		revText;
 	TRevIndex		rev;
 	TFwdIndex		fwd;
 
@@ -119,28 +121,6 @@ class Index<TText, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec2, TBidirectio
 		fwd(text)
 	{ }
 };
-
-/*template <typename TText, typename TSpec, typename TSpec2, typename TBidirectional>
-class Index<TText, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec2, TBidirectional> > >
-{
-	typedef ModifiedString<TText, ModReverse>				TRevText;
-	typedef Index<TRevText, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >		TRevIndex;
-	typedef Index<TText, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >			TFwdIndex;
-
-	public:
-
-	TRevText		revText;
-	TRevIndex		rev;
-	TFwdIndex		fwd;
-
-	Index()	{}
-
-	Index(TText & text) :
-		revText(text),
-		rev(revText),
-		fwd(text)
-	{}
-};*/
 
 // TODO:cpockrandt: actually we don't need them for FM indices ...
 

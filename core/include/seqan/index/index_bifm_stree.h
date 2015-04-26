@@ -46,34 +46,6 @@ namespace seqan {
 // ----------------------------------------------------------------------------
 // Class BidirectionalFMIndex-Iter
 // ----------------------------------------------------------------------------
-
-template <typename TText>
-struct BiFMReversedText
-{
-    typedef ModifiedString<TText, ModReverse> Type;
-};
-
-template <typename TText, typename TTextConfig>
-struct BiFMReversedText<StringSet<TText, TTextConfig> >
-{
-    typedef StringSet<ModifiedString<TText, ModReverse>, TTextConfig> Type;
-};
-
-template <typename TText, typename TTextConfig>
-struct BiFMReversedText<StringSet<ModifiedString<TText, ModReverse>, TTextConfig> >
-{
-    typedef StringSet<TText, TTextConfig> Type;
-};
-
-template <typename TText>
-struct BiFMReversedText<ModifiedString<TText, ModReverse> >
-{
-    typedef TText Type;
-};
-
-// ----------------------------------------------------------------------------
-// Class BidirectionalFMIndex-Iter
-// ----------------------------------------------------------------------------
 //TODO:cpockrandt:documentation
 template <typename TText, class TOccSpec, typename TBidirectional, typename TSpec>
 class Iter<Index<TText, BidirectionalFMIndex<TOccSpec, FMIndexConfig<TOccSpec, TBidirectional> > >, VSTree<TopDown<TSpec> > >
@@ -84,7 +56,7 @@ public:
 	typedef typename BiFMReversedText<TText>::Type											TRevText;
 
 	typedef Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >	TFwdIndex;
-	typedef Index<TRevText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >						TRevIndex;
+	typedef Index<TRevText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, FMBidirectional> > >			TRevIndex;
 
 	typedef Iter<TFwdIndex, VSTree<TopDown<TSpec> > >												TFwdIndexIter;
 	typedef Iter<TRevIndex, VSTree<TopDown<TSpec> > >												TRevIndexIter;
@@ -251,8 +223,6 @@ inline bool _getNodeByChar(Iter<Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOc
     typedef typename Size<TIndex>::Type													TRangeSize;
     typedef Pair<TRangeSize>															TRange;
 
-	//double mystart = std::clock();
-
 	TIndex const & index = container(it);
 	TLF const & lf = indexLF(index);
     TRange tmpRange;
@@ -260,8 +230,6 @@ inline bool _getNodeByChar(Iter<Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOc
 	unsigned int sum = 0;
 	int const alpSize = ValueSize<TAlphabet>::VALUE;
 
-	//std::cout << "\t\t\t\t\t std::min(" << alpSize << ", " << ((int) c) << std::endl;
-	// TODO: int nehmen statt TAlphabet?
 	for (TAlphabet _d = 0; _d < std::min(alpSize, (int) c); ++_d)
 	{
 		unsigned int i1, i2;
@@ -274,50 +242,34 @@ inline bool _getNodeByChar(Iter<Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOc
 		if (i1 < i2)
 			sum += i2 - i1;
 	}
-	//std::cout << "\t\tbia:" << (std::clock() - mystart) << std::endl;
-	//mystart = std::clock();
 
 	bool isRoot = _isRoot(vDesc);
 	_range = range(index, vDesc);
 	_range.i1 = lf(_range.i1, c);
 	_range.i2 = lf(_range.i2, c);
 
-	//std::cout << "\t\tbib:" << (std::clock() - mystart) << std::endl;
-	//mystart = std::clock();
-
     if (_range.i1 < _range.i2)
     {
     	// historyPush nicht änderbar, wg. index_fm_stree.h Z. 300 ff. und eigener _getNodeByChar-Impl.! Gibt sonst Probleme mit der Reihenfolge
         _historyPush(*it.revIter); // "it" itself is already pushed in the wrapping method
 
-    	//std::cout << "\t\tbic:" << (std::clock() - mystart) << std::endl;
-    	//mystart = std::clock();
-
 		if (isRoot)
 		{
 			value(*it.revIter).range.i1 = _range.i1;
 			value(*it.revIter).range.i2 = _range.i2;
-			//std::cout << "\t\tbid:" << (std::clock() - mystart) << std::endl;
-			//mystart = std::clock();
 		}
 		else
 		{
 			sum += _countSentinels(index, vDesc.range);
-			//std::cout << "\t\tbie:" << (std::clock() - mystart) << std::endl;
-			//mystart = std::clock();
 			value(*it.revIter).range.i1 += sum;
 			value(*it.revIter).range.i2 = value(*it.revIter).range.i1 + (_range.i2 - _range.i1);
-			//std::cout << "\t\tbif:" << (std::clock() - mystart) << std::endl;
-			//mystart = std::clock();
 		}
 		value(*it.revIter).lastChar = c;
 		value(*it.revIter).repLen++;
 
-		//std::cout << "\t\tbiy:" << (std::clock() - mystart) << std::endl;
         return true;
     }
 
-    //std::cout << "\t\tbiz:" << (std::clock() - mystart) << std::endl;
     return false;
 }
 

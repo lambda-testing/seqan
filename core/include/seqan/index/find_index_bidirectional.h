@@ -90,16 +90,95 @@ inline void genRandomStr(String<char> &s, const unsigned int len, const unsigned
          s[i] = 'a' + rand()%alpSize;
 }
 
-inline bool
-testExactSearch2(unsigned int textLength, unsigned int patternLength, unsigned int alpSize, unsigned int stringSetSize, bool debug = false)
+inline void genRandomStr(DnaString &s, const unsigned int len)
 {
-	typedef StringSet<String<char>,  Owner<ConcatDirect<> > >		TText;
+	resize(s, len);
+	for (unsigned int i = 0; i < len; ++i)
+	{
+		switch(rand()%4)
+		{
+			case 0: s[i] = 'A'; break;
+			case 1: s[i] = 'C'; break;
+			case 2: s[i] = 'G'; break;
+			case 3: s[i] = 'T'; break;
+		}
+	}
+}
 
-	typedef Index<TText, FMIndex<> >								TFMIndex;
-	typedef Iterator<TFMIndex, TopDown<> >::Type					TFMIter;
+inline void genRandomStr(Dna5String &s, const unsigned int len)
+{
+	resize(s, len);
+	for (unsigned int i = 0; i < len; ++i)
+	{
+		switch(rand()%4)
+		{
+			case 0: s[i] = 'A'; break;
+			case 1: s[i] = 'C'; break;
+			case 2: s[i] = 'G'; break;
+			case 3: s[i] = 'T'; break;
+		}
+	}
+}
 
-	typedef Index<TText, BidirectionalFMIndex<> >					TBiFMIndex;
+inline void
+measureCPUTime()
+{
+	typedef	Dna5String								TText;
+	typedef Index<TText, FMIndex<> >				TFMIndex;
+	typedef Iterator<TFMIndex, TopDown<> >::Type	TFMIter;
+	typedef Index<TText, BidirectionalFMIndex<> >	TBiFMIndex;
 	typedef Iterator<TBiFMIndex, TopDown<> >::Type	TBiFMIter;
+
+	Dna5 c;
+	TText text, pattern;
+
+	unsigned int const textLength = 10000000;
+	unsigned int const patternLength = 2000;
+
+	unsigned int i, start, fmCount, bifmCount;
+
+	genRandomStr(text, textLength);
+	genRandomStr(pattern, patternLength);
+
+	TFMIndex fmIndex(text);
+	TBiFMIndex bifmIndex(text);
+
+	TFMIter fmIter(fmIndex);
+	TBiFMIter bifmIter(bifmIndex);
+
+	start = std::clock();
+	for (i = 0; i < patternLength; ++i)
+	{
+		if (!goDown(fmIter, pattern[i]))
+			break;
+	}
+	fmCount = std::clock() - start;
+
+	start = std::clock();
+	for (i = 0; i < patternLength; ++i)
+	{
+		if (!goDown(bifmIter, pattern[i]))
+			break;
+	}
+	bifmCount = std::clock() - start;
+
+	std::cout << "i   : " << i << std::endl;
+	std::cout << "FM  : " << fmCount << std::endl;
+	std::cout << "BiFM: " << bifmCount << std::endl;
+}
+
+inline bool
+testExactSearch2(unsigned int textLength, unsigned int patternLength, unsigned int stringSetSize, bool debug = false)
+{
+	typedef	DnaString	TAlphabet;
+
+	typedef StringSet<TAlphabet, Owner<ConcatDirect<> > >	TText;
+
+	typedef Index<TText, FMIndex<> >						TFMIndex;
+	typedef Iterator<TFMIndex, TopDown<> >::Type			TFMIter;
+
+	typedef Index<TText, BidirectionalFMIndex<> >			TBiFMIndex;
+	typedef Iterator<TBiFMIndex, TopDown<> >::Type			TBiFMIter;
 
 	srand(time(NULL));
 
@@ -109,8 +188,8 @@ testExactSearch2(unsigned int textLength, unsigned int patternLength, unsigned i
 	unsigned int i;
 
 	for (i = 0; i < stringSetSize; ++i) {
-		String<char> _text, _revText;
-		genRandomStr(_text, textLength, alpSize);
+		TAlphabet _text, _revText;
+		genRandomStr(_text, textLength);
 		appendValue(text, _text);
 
 		resize(_revText, textLength);
@@ -120,10 +199,10 @@ testExactSearch2(unsigned int textLength, unsigned int patternLength, unsigned i
 		}
 		appendValue(revText, _revText);
 	}
-	String<char> pattern;
-	genRandomStr(pattern, patternLength, alpSize);
+	TAlphabet pattern;
+	genRandomStr(pattern, patternLength);
 
-	ModifiedString< String<char>, ModReverse > revPattern(pattern);
+	ModifiedString<TAlphabet, ModReverse> revPattern(pattern);
 
 	TFMIndex fmIndex1(text);
 	TFMIndex fmIndex2(revText);
@@ -155,8 +234,8 @@ testExactSearch2(unsigned int textLength, unsigned int patternLength, unsigned i
 	TBiFMIter bifm2(bifmIndex2);
 
 
-	String<char> textOutput("");
-	String<char> revTextOutput("");
+	TAlphabet textOutput("");
+	TAlphabet revTextOutput("");
 	for (i = 0; i < stringSetSize; ++i)
 	{
 		append(textOutput, text[i]);
@@ -230,9 +309,9 @@ testExactSearch2(unsigned int textLength, unsigned int patternLength, unsigned i
 }
 
 inline bool
-testExactSearch(unsigned int textLength, unsigned int patternLength, unsigned int alpSize, bool const debug = 0)
+testExactSearch(unsigned int textLength, unsigned int patternLength, bool const debug = 0)
 {
-	typedef String<char>											TText;
+	typedef DnaString												TText;
 
 	typedef Index<TText, FMIndex<> >								TFMIndex;
 	typedef Iterator<TFMIndex, TopDown<> >::Type					TFMIter;
@@ -242,16 +321,16 @@ testExactSearch(unsigned int textLength, unsigned int patternLength, unsigned in
 
 
 	unsigned int i;
-	String<char> text;
-	String<char> pattern;
-	String<char> revText;
+	TText text;
+	TText pattern;
+	TText revText;
 
 	srand(time(NULL));
 
-	genRandomStr(text, textLength, alpSize);
-	genRandomStr(pattern, patternLength, alpSize);
+	genRandomStr(text, textLength);
+	genRandomStr(pattern, patternLength);
 
-	ModifiedString< String<char>, ModReverse > revPattern(pattern);
+	ModifiedString<TText, ModReverse> revPattern(pattern);
 
 	resize(revText, textLength);
 	for (i = 0; i < textLength; ++i)
@@ -285,123 +364,6 @@ testExactSearch(unsigned int textLength, unsigned int patternLength, unsigned in
 
 	/*open(bifmIndex1, fileName);
 	open(bifmIndex2, fileName);*/
-
-	TBiFMIter bifm1(bifmIndex1);
-	TBiFMIter bifm2(bifmIndex2);
-
-	if (debug)
-		std::cout << "Text: " << text << "(" << revText << "), Pattern: " << pattern << std::endl
-				<< "FM1: " << fm1.vDesc.range.i1 << "-" << fm1.vDesc.range.i2 << ", FM2: " <<
-					fm2.vDesc.range.i1 << "-" << fm2.vDesc.range.i2 << std::endl;
-
-	bool res1 = true, res2 = true, res3 = true, res4 = true;
-
-	for (i = 0; i < patternLength; ++i)
-	{
-		res1 &= goDown(fm1, pattern[patternLength - i - 1]);
-		res2 &= goDown(fm2, pattern[i]);
-		res3 &= rightExtend(bifm1, pattern[i]);
-		res4 &= leftExtend(bifm2, pattern[patternLength - i - 1]);
-
-		if (debug)
-			std::cout << "Res: " << res1 << ", " << res2 << ", " << res3 << ", " << res4 << std::endl;
-
-		if (debug)
-			std::cout << "FM1: " << fm1.vDesc.range.i1 << "-" << fm1.vDesc.range.i2 << " (" << pattern[patternLength - i - 1] << "), FM2: " <<
-			fm2.vDesc.range.i1 << "-" << fm2.vDesc.range.i2 << " (" << pattern[i] << ")" << std::endl << "- BFM1 fwd: " <<
-			bifm1.fwdIter.vDesc.range.i1 << "-" << bifm1.fwdIter.vDesc.range.i2 << " (" << pattern[i] << "), BFM1 bwd: " <<
-			bifm1.bwdIter.vDesc.range.i1 << "-" << bifm1.bwdIter.vDesc.range.i2 << " (" << pattern[i] << ")" << std::endl << "- BFM2 fwd: " <<
-			bifm2.fwdIter.vDesc.range.i1 << "-" << bifm2.fwdIter.vDesc.range.i2 << " (" << pattern[patternLength - i - 1] << "), BFM2 bwd: " <<
-			bifm2.bwdIter.vDesc.range.i1 << "-" << bifm2.bwdIter.vDesc.range.i2 << " (" << pattern[patternLength - i - 1] << ")" << std::endl;
-
-		if (i == patternLength-1)
-		{
-			if (!(res1 == res2 && res2 == res3 && res3 == res4))
-			{
-				std::cerr << "Error1 (" << text << ", " << pattern << ")!" << std::endl;
-				return 1;
-			}
-			else if (res1 == 1 && !( // all res are not 0!
-				fm1.vDesc.range.i1 == bifm1.fwdIter.vDesc.range.i1 &&
-				fm1.vDesc.range.i1 == bifm2.fwdIter.vDesc.range.i1 &&
-				fm2.vDesc.range.i1 == bifm1.bwdIter.vDesc.range.i1 &&
-				fm2.vDesc.range.i1 == bifm2.bwdIter.vDesc.range.i1 &&
-				fm1.vDesc.range.i2 == bifm1.fwdIter.vDesc.range.i2 &&
-				fm1.vDesc.range.i2 == bifm2.fwdIter.vDesc.range.i2 &&
-				fm2.vDesc.range.i2 == bifm1.bwdIter.vDesc.range.i2 &&
-				fm2.vDesc.range.i2 == bifm2.bwdIter.vDesc.range.i2
-			))
-			{
-				std::cerr << "Error2 (" << text << ", " << pattern << ")!" << std::endl;
-				return 1;
-			}
-		}
-	}
-
-	return 0;
-}
-
-inline bool
-testExactSearch2(unsigned int textLength, unsigned int patternLength, unsigned int alpSize, unsigned int stringSetSize)
-{
-	typedef StringSet<String<char>,  Owner<ConcatDirect<> > >		TText;
-
-	typedef Index<TText, FMIndex<> >								TFMIndex;
-	typedef Iterator<TFMIndex, TopDown<> >::Type					TFMIter;
-
-	typedef Index<TText, BidirectionalFMIndex<> >					TBiFMIndex;
-	typedef Iterator<TBiFMIndex, TopDown<ParentLinks<> > >::Type	TBiFMIter;
-
-	srand(time(NULL));
-
-	TText text;
-	TText revText;
-
-	unsigned int i;
-
-		for (i = 0; i < stringSetSize; ++i) {
-		String<char> _text, _revText;
-		genRandomStr(_text, textLength, alpSize);
-		appendValue(text, _text);
-
-		resize(_revText, textLength);
-		for (int j = 0; j < textLength; ++j)
-		{
-			_revText[i] = _text[textLength - i - 1];
-		}
-		appendValue(revText, _revText);
-	}
-
-	String<char> pattern;
-	genRandomStr(pattern, patternLength, alpSize);
-
-	ModifiedString< String<char>, ModReverse > revPattern(pattern);
-
-	TFMIndex fmIndex1(text);
-	TFMIndex fmIndex2(revText);
-	TFMIter fm1(fmIndex1);
-	TFMIter fm2(fmIndex2);
-
-	/*const char *fileName = "/home/chris/indexTest/myindex";
-	TBiFMIndex bifmIndexOpen1(text);
-	TBiFMIndex bifmIndexOpen2(text);
-
-	indexRequire(bifmIndexOpen1.fwd, FibreSA());
-	indexRequire(bifmIndexOpen1.rev, FibreSA());
-
-	indexRequire(bifmIndexOpen2.fwd, FibreSA());
-	indexRequire(bifmIndexOpen2.rev, FibreSA());
-
-	system("exec rm -r /home/chris/indexTest/*");
-
-	save(bifmIndexOpen1, fileName);
-	save(bifmIndexOpen2, fileName);*/
-
-	TBiFMIndex bifmIndex1(text);
-	TBiFMIndex bifmIndex2(text);
-
-	/*open(bifmIndex1, fileName);
-	open(bifmIndex2, fileName)*/;
 
 	TBiFMIter bifm1(bifmIndex1);
 	TBiFMIter bifm2(bifmIndex2);

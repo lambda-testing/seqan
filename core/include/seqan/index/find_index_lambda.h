@@ -96,7 +96,7 @@ _findBacktracking(TIndexIt indexIt,
     // Exact case.
     if (errors == threshold)
     {
-        if (goDown(indexIt, suffix(needle, position(needleIt, needle))))
+        if (goDown(indexIt.bwdIter, suffix(needle, position(needleIt, needle))))
             delegate(indexIt, errors);
     }
     // Approximate case.

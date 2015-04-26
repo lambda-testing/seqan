@@ -1319,7 +1319,7 @@ iterateMatches(TStream & stream, TLocalHolder & lH)
                         ++lH.stats.hitsFailedPreExtendTest;
                         break;
                     default:
-                        std::cerr << "Unexpected Extension Failure:\n"
+                        /*std::cerr << "Unexpected Extension Failure:\n"
                           << "qryId: " << it->qryId << "\t"
                           << "subjId: " << it->subjId << "\t"
                           << "seed    qry: " << infix(lH.gH.redQrySeqs,
@@ -1341,7 +1341,7 @@ iterateMatches(TStream & stream, TLocalHolder & lH)
                                                       bm.sStart,
                                                       bm.sEnd)
                           << "\nalign: " << bm.align
-                          << "\n";
+                          << "\n";*/
                         return lret;
                         break;
                 }

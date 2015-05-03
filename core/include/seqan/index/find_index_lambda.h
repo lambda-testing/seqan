@@ -82,26 +82,20 @@ _findImpl(TState & /* state */,
 // Function _findImpl(..., Backtracking<Edit/HammingDistance>)
 // ----------------------------------------------------------------------------
 
-template <typename TIndexIt, typename TNeedle, typename TNeedleIt,
-          typename TThreshold, typename TDelegate, typename TDistance>
+template <typename TIndexIt, typename TNeedle, typename TNeedleIt, typename TThreshold, typename TDelegate, typename TDistance>
 inline void
-_findBacktracking(TIndexIt indexIt,
-                  TNeedle const & needle,
-                  TNeedleIt needleIt,
-                  TThreshold errors,
-                  TThreshold threshold,
-                  TDelegate && delegate,
-                  TDistance)
+_findBacktracking(TIndexIt indexIt, TNeedle const & needle, TNeedleIt needleIt, TThreshold errors, TThreshold threshold, TDelegate && delegate, TDistance)
 {
     // Exact case.
     if (errors == threshold)
     {
-        if (goDown(indexIt.bwdIter, suffix(needle, position(needleIt, needle))))
+        if (goDown(indexIt, suffix(needle, position(needleIt, needle))))
             delegate(indexIt, errors);
     }
     // Approximate case.
     else if (errors < threshold)
     {
+    	//std::cout << suffix(needle, position(needleIt, needle)) << std::endl;
         // Base case.
         if (atEnd(needleIt, needle))
         {
@@ -121,6 +115,7 @@ _findBacktracking(TIndexIt indexIt,
             {
                 do
                 {
+                	// TODO:cpockrandt: oder auch match?
                     // Mismatch.
                     TThreshold delta = !ordEqual(parentEdgeLabel(indexIt), value(needleIt));
                     _findBacktracking(indexIt, needle, needleIt + 1,
@@ -137,6 +132,438 @@ _findBacktracking(TIndexIt indexIt,
             }
         }
     }
+}
+
+template <typename TLocalHolder, typename TNeedleIter, typename TIndexIter, typename TNeedle, typename TNeedleIt, typename TThreshold, typename TDistance>
+inline void
+_findBacktrackingSingle(TLocalHolder &, TNeedleIter &, TIndexIter, TNeedle const &, TNeedleIt, TThreshold, TThreshold, TDistance, std::vector<std::vector<unsigned long> > &)
+{
+	std::cerr << "Not possible!" << std::endl;
+	return;
+}
+
+template <typename TLocalHolder, typename TNeedleIter, typename TText, typename TIndexConfig, typename TTD, typename TNeedle, typename TNeedleIt, typename TThreshold, typename TDistance>
+inline void
+_findBacktrackingSingle(TLocalHolder & lH,
+		  	  	  TNeedleIter & ni,
+		  	  	  Iter<Index<TText, BidirectionalFMIndex<TIndexConfig> >, VSTree<TopDown<TTD> > > & indexIt, // TODO: hier war vorher keine referenz!
+				  TNeedle const & needle,
+				  TNeedleIt needleIt,
+                  TThreshold errors,
+                  TThreshold threshold,
+                  TDistance,
+				  unsigned long const (&)[LOOKUP_TABLE_SIZE])
+{
+    // Exact case.
+    if (errors == threshold)
+    {
+        if (goDown(indexIt, suffix(needle, position(needleIt, needle))))
+        	onFindSingleIndex(lH, ni, indexIt);
+    }
+    // Approximate case.
+    else if (errors < threshold)
+    {
+    	std::cerr << "Not implemented yet!" << std::endl;
+    }
+}
+
+template <typename TLocalHolder, typename TNeedleIter, typename TIndexIt, typename TNeedle, typename TNeedleIt, typename TThreshold, typename TDistance>
+inline void
+_findBacktrackingMultiple(TLocalHolder &, TNeedleIter &, TIndexIt, TNeedle const &, TNeedleIt, TThreshold, TThreshold, TDistance, std::vector<std::vector<unsigned long> > &)
+{
+	std::cerr << "Not possible!" << std::endl;
+	return;
+}
+
+template <typename TLocalHolder, typename TNeedleIter, typename TIndexIter>
+inline void
+recursiveSearch(TLocalHolder & lH, TNeedleIter & ni, TIndexIter & indexIt, unsigned int i, unsigned int j, unsigned int d, bool goLeft, unsigned long const (&preComputedIndexPos)[LOOKUP_TABLE_SIZE])
+{
+	if ((i != 5 || j != 10) &&
+		!goDown(
+			goLeft ? indexIt.bwdIter : indexIt.fwdIter,
+			goLeft ? value(ni)[i] : value(ni+5)[j-5-1]
+	))
+	{
+		return;
+	}
+
+	if (d == 5)
+	{
+		onFindSingleIndex(lH, ni+i, indexIt);
+		return;
+	}
+
+	/*auto vDesc1 = value(indexIt.fwdIter);
+	auto vDesc2 = value(indexIt.bwdIter);
+
+	// go left
+	if (5 - d == i || 13 <= j)
+	{
+		recursiveSearch(lH, ni, indexIt, i-1, j, d+1, true, preComputedIndexPos);
+	}
+
+	value(indexIt.fwdIter) = vDesc1;
+	value(indexIt.bwdIter) = vDesc2;
+
+	// go right
+	if (10 + d == j || i <= 2)
+	{
+		recursiveSearch(lH, ni, indexIt, i, j+1, d+1, false, preComputedIndexPos);
+	}*/
+
+	// go left
+	if (5 - d == i || 13 <= j)
+	{
+		if (5 - d == i || 13 <= j)
+		{
+			auto vDesc1 = value(indexIt.fwdIter);
+			auto vDesc2 = value(indexIt.bwdIter);
+
+			recursiveSearch(lH, ni, indexIt, i-1, j, d+1, true, preComputedIndexPos);
+
+			value(indexIt.fwdIter) = vDesc1;
+			value(indexIt.bwdIter) = vDesc2;
+		}
+		else
+			recursiveSearch(lH, ni, indexIt, i-1, j, d+1, true, preComputedIndexPos);
+	}
+
+	// go right
+	if (10 + d == j || i <= 2)
+	{
+		recursiveSearch(lH, ni, indexIt, i, j+1, d+1, false, preComputedIndexPos);
+	}
+}
+
+template <typename TIter, typename TNeedle, typename TNeedleIt>
+inline bool
+_goDownEfficient(TIter & indexIt, TNeedle & needle, TNeedleIt & needleIt, unsigned long const (&preComputedIndexPos)[LOOKUP_TABLE_SIZE])
+{
+	unsigned short offset = 5;
+	if (length(needle)-offset >= 3)
+	{
+		unsigned int pos = (unsigned) ordValue((AminoAcid) needle[offset+0])
+		+ 24 * (unsigned) ordValue((AminoAcid) needle[offset+1])
+		+ 24 * 24 * (unsigned) ordValue((AminoAcid) needle[offset+2]);
+		if (preComputedIndexPos[pos+1] > 0)
+		{
+			indexIt.fwdIter.vDesc.range.i1 = preComputedIndexPos[pos];
+			indexIt.fwdIter.vDesc.range.i2 = preComputedIndexPos[pos+1];
+			indexIt.fwdIter.vDesc.repLen = 3;
+			indexIt.bwdIter.vDesc.range.i1 = preComputedIndexPos[pos+2];
+			indexIt.bwdIter.vDesc.range.i2 = preComputedIndexPos[pos+3];
+			indexIt.bwdIter.vDesc.repLen = 3;
+			if (length(needle)-offset > 3)
+			{
+				return goDown(indexIt.fwdIter, suffix(needle, position(needleIt, needle)+3+offset));
+			}
+			else
+			{
+				indexIt.fwdIter.vDesc.lastChar = needle[offset+2]; // eventuell in > 3
+				indexIt.bwdIter.vDesc.lastChar = needle[offset+2]; // eventuell in > 3
+			}
+			return true;
+		}
+		return false;
+	}
+	else
+		return goDown(indexIt.fwdIter, needle);
+}
+
+template <typename TLocalHolder, typename TNeedleIter, typename TText, typename TIndexConfig, typename TTD, typename TNeedle, typename TNeedleIt, typename TThreshold, typename TDistance>
+inline void
+_findBacktrackingMultiple(TLocalHolder & lH,
+		  	  	  TNeedleIter & ni,
+		  	  	  Iter<Index<TText, BidirectionalFMIndex<TIndexConfig> >, VSTree<TopDown<TTD> > > & indexIt, // TODO: hier war vorher keine referenz!
+				  TNeedle const & needle1,
+				  TNeedleIt needleIt1,
+                  TThreshold errors,
+                  TThreshold threshold,
+                  TDistance,
+				  unsigned long const (&preComputedIndexPos)[LOOKUP_TABLE_SIZE])
+{
+	// 1-stepping für seed length = 10
+	//goDown(indexIt.fwdIter, suffix(needle1, position(needleIt1, needle1)+5)); // TODO: vorher: +5
+
+	//unsigned letter1 = (unsigned) ordValue((AminoAcid) needle1[7]);
+	//unsigned letter2 = (unsigned) ordValue((AminoAcid) needle1[8]);
+	//unsigned letter3 = (unsigned) ordValue((AminoAcid) needle1[9]);
+
+	//unsigned int pos2 = letter1 + 24 * letter2 + 24 * 24 * letter3;
+			//24 * 24 * 24* ordValue(suffix(needle1, position(needleIt1, needle1)+6)[3]);
+
+	if (//goDown(indexIt.fwdIter, suffix(needle1, position(needleIt1, needle1)+5)))
+			//goDown(indexIt.fwdIter, infixWithLength(needle1, position(needleIt1, needle1)+5, 3))
+			//&&
+			//goDown(indexIt.fwdIter, suffix(needle1, position(needleIt1, needle1)+5+3))
+			_goDownEfficient(indexIt, needle1, needleIt1, preComputedIndexPos)
+			)
+	{
+	    //std::cout << "Start: " << indexIt.fwdIter.vDesc.range.i1 << "\t" << indexIt.fwdIter.vDesc.range.i2 << "\t"
+	    	//<< indexIt.bwdIter.vDesc.range.i1 << "\t" << indexIt.bwdIter.vDesc.range.i2 << std::endl;
+		recursiveSearch(lH, ni, indexIt, 5, 10, 0, false/* || true*/, preComputedIndexPos);
+	}
+	//goRoot(indexIt);
+	return;
+
+
+
+    // Exact case.
+    if (errors == threshold)
+    {
+        //ModifiedString<TNeedle, ModReverse> const revNeedle(needle);
+        //typedef typename Iterator<ModifiedString<TNeedle, ModReverse> const, Standard>::Type  TRevNeedleIt;
+        //TRevNeedleIt revNeedleIt = begin(revNeedle, Standard());
+
+        TNeedle needle2 = value(ni+1);
+        //TNeedleIt needleIt2 = begin(needle2, Standard());
+
+        /*if(goDown(indexIt.fwdIter, needle))
+        {
+			onFindSingleIndex(lH, ni, indexIt);
+        }
+
+        goRoot(indexIt);
+
+        if(goDown(indexIt.fwdIter, needle2))
+        {
+			onFindSingleIndex(lH, ni+1, indexIt);
+        }
+
+        goRoot(indexIt);*/
+
+    	/*std::cout << "xxx \t" << needle1 << "\t" << needle2
+			<< "\t" << infixWithLength(needle2, position(needleIt2, needle2), 4)
+			<< "\t" << suffix(needle2, position(needleIt2, needle2)+4)
+			<< "\t" << infixWithLength(needle1, position(needleIt1, needle1), 4)
+			<< std::endl;*/
+
+    	if (
+    		goDown(indexIt.fwdIter, needle2[0]) &&
+			goDown(indexIt.fwdIter, needle2[1]) &&
+			goDown(indexIt.fwdIter, needle2[2]) &&
+			goDown(indexIt.fwdIter, needle2[3])
+		)
+        //if(goDown(indexIt.fwdIter, needle2))
+        //if (goDown(indexIt.fwdIter, infixWithLength(needle2, position(needleIt2, needle2), 4)) &&
+    	//		goDown(indexIt.fwdIter, suffix(needle2, position(needleIt2, needle2)+4)))
+    	{
+			// copy ranges, etc.
+    		auto vDesc1 = value(indexIt.fwdIter);
+    		auto vDesc2 = value(indexIt.bwdIter);
+
+			/*unsigned long fwd_i1 = value(indexIt.fwdIter).range.i1;
+			unsigned long fwd_i2 = value(indexIt.fwdIter).range.i2;
+			unsigned char fwd_c = value(indexIt.fwdIter).lastChar.value;
+			unsigned long fwd_l = value(indexIt.fwdIter).repLen;
+
+			unsigned long bwd_i1 = value(indexIt.bwdIter).range.i1;
+			unsigned long bwd_i2 = value(indexIt.bwdIter).range.i2;
+			unsigned char bwd_c = value(indexIt.bwdIter).lastChar.value;
+			unsigned long bwd_l = value(indexIt.bwdIter).repLen;*/
+
+			if (
+				goDown(indexIt.fwdIter, needle2[4]) &&
+				goDown(indexIt.fwdIter, needle2[5]) &&
+				goDown(indexIt.fwdIter, needle2[6]) &&
+				goDown(indexIt.fwdIter, needle2[7])
+			)
+			{
+				onFindSingleIndex(lH, ni+1, indexIt);
+			}
+
+			// paste ranges, etc.
+			value(indexIt.fwdIter) = vDesc1;
+			value(indexIt.bwdIter) = vDesc2;
+			/*value(indexIt.fwdIter).range.i1 = fwd_i1;
+			value(indexIt.fwdIter).range.i2 = fwd_i2;
+			value(indexIt.fwdIter).lastChar.value = fwd_c;
+			value(indexIt.fwdIter).repLen = fwd_l;
+
+			value(indexIt.bwdIter).range.i1 = bwd_i1;
+			value(indexIt.bwdIter).range.i2 = bwd_i2;
+			value(indexIt.bwdIter).lastChar.value = bwd_c;
+			value(indexIt.bwdIter).repLen = bwd_l;*/
+
+			if (
+				goDown(indexIt.bwdIter, needle1[3]) &&
+				goDown(indexIt.bwdIter, needle1[2]) &&
+				goDown(indexIt.bwdIter, needle1[1]) &&
+				goDown(indexIt.bwdIter, needle1[0])
+			)
+			{
+				onFindSingleIndex(lH, ni, indexIt);
+			}
+
+	    	/*
+	    	*/
+			//if (goDown(indexIt.fwdIter, infixWithLength(needle1, position(needleIt1, needle1), 4)) &&
+			//	goDown(indexIt.fwdIter, infixWithLength(needle2, position(needleIt2, needle2), 4)))
+	    	//if(goDown(indexIt.fwdIter, needle1))
+	    	//{
+			//}
+
+    	}
+    	goRoot(indexIt);
+
+    	//goRoot(indexIt);
+
+    	/*bool hit1 = false;
+    	bool hit2 = false;
+
+		if (goDown(indexIt.fwdIter, infixWithLength(needle2, position(needleIt2, needle2), 4))
+
+		) {
+			//typedef typename Iterator<TNeedle>::Type TStrIter;
+			//TStrIter strit = end(needle1) - 1;
+			//TStrIter stritBegin = begin(needle1);
+			unsigned int z = 0;
+			//std::cout << "---\t";
+			for (; z < 4; ++z)
+			//while (!(strit < stritBegin))
+			{
+				//std::cout << needle1[4-z-1];
+				//std::cout << *strit;
+				//--strit;
+				if (!goDown(indexIt.bwdIter, needle1[4-z-1]))
+					break;
+			}
+			//std::cout << std::endl;
+
+			if (z == 4)
+				hit1 = true;
+				//onFindSingleIndex(lH, ni, indexIt);
+		}
+
+    	goRoot(indexIt);*/
+
+    	/*if (needle1[4] != needle2[0] || needle1[5] != needle2[1] || needle1[6] != needle2[2] || needle1[7] != needle2[3])
+    		std::cout
+    			<< needle1[0]
+    			<< needle1[1]
+    			<< needle1[2]
+    			<< needle1[3]
+    			<< needle1[4]
+    			<< needle1[5]
+    			<< needle1[6]
+    			<< needle1[7] << "\t"
+    			<< needle2[0]
+    			<< needle2[1]
+    			<< needle2[2]
+    			<< needle2[3]
+    			<< needle2[4]
+    			<< needle2[5]
+    			<< needle2[6]
+    			<< needle2[7] << std::endl;*/
+
+		/*if (goDown(indexIt, suffix(needle2, position(needleIt2, needle2))))
+			delegate2(indexIt, errors);
+
+			//goRoot(indexIt);
+			//goDown(indexIt.fwdIter, infixWithLength(needle2, position(needleIt2, needle2), 4));
+
+			if (goDown(indexIt, suffix(needle1, position(needleIt1, needle1))))
+				delegate1(indexIt, errors);*/
+
+    	            //goRoot(indexIt);
+    	    	//}
+    	        //if (goDown(indexIt, suffix(needle1, position(needleIt1, needle1))))
+    	            //delegate1(indexIt, errors);
+    }
+
+        /*if (goDown(indexIt, suffix(needle, position(needleIt, needle))))
+	        onFindSingleIndex(lH, ni, indexIt);
+
+        goRoot(indexIt);
+    	if (
+			goDown(indexIt.fwdIter, infixWithLength(needle2, position(needleIt2, needle2), 4)) &&
+			goDown(indexIt.fwdIter, infixWithLength(needle2, position(needleIt2, needle2)+4, 4))
+		)
+	        onFindSingleIndex(lH, ni+1, indexIt);*/
+
+        //std::cout << needle << "\t" << revNeedle <</* "\t" << infixWithLength(needle, position(needleIt, needle)+4, 4) << "\t"
+        		//<< infixWithLength(revNeedle, position(needleIt, needle)+4, 4) <<*/ std::endl;
+
+        /*if (
+			goDown(indexIt.fwdIter, needle) &&
+			goDown(indexIt.bwdIter, infixWithLength(revNeedle, position(revNeedleIt, revNeedle)+4, 4))
+        )
+        {
+
+
+        }
+        goRoot(indexIt);
+        TNeedle needle2 = value(ni+1);
+        TNeedleIt needleIt2 = begin(needle2, Standard());
+    	if (
+			goDown(indexIt.fwdIter, infixWithLength(needle2, position(needleIt2, needle2), 4)) &&
+			goDown(indexIt.fwdIter, infixWithLength(needle2, position(needleIt2, needle2)+4, 4))
+		)
+	        onFindSingleIndex(lH, ni+1, indexIt);
+    }*/
+}
+
+/*template <typename TLocalHolder, typename TNeedleIter, typename TState, typename TText, typename TIndexConfig, typename TNeedle,
+          typename TThreshold, typename TDistance, typename TSpec>
+SEQAN_FUNC_ENABLE_IF(IsSequence<TNeedle>, void)
+_findImpl(TLocalHolder &,
+		  TNeedleIter &,
+		  TState &,
+		  Index<TText, BidirectionalFMIndex<TIndexConfig> > & index,
+          TNeedle const &,
+          TThreshold,
+          Backtracking<TDistance, TSpec>)
+{
+    typedef typename Iterator<Index<TText, BidirectionalFMIndex<TIndexConfig> >, TopDown<> >::Type       TIndexIt;
+
+    TIndexIt indexIt(index);
+
+	goDown(indexIt.bwdIter, "SRVVVNEL");
+    std::cout << indexIt.fwdIter.vDesc.range.i1 << "\t" << indexIt.fwdIter.vDesc.range.i2 << "\t"
+    	<< indexIt.bwdIter.vDesc.range.i1 << "\t" << indexIt.bwdIter.vDesc.range.i2 << std::endl;
+}*/
+
+template <typename TLocalHolder, typename TNeedleIter, typename TState, typename TIndex, typename TNeedle,
+          typename TThreshold, typename TDistance, typename TSpec>
+SEQAN_FUNC_ENABLE_IF(IsSequence<TNeedle>, void)
+_findImplMultiple(TLocalHolder & lH,
+		  TNeedleIter & ni,
+		  TState & /*indexIt*/,
+          TIndex & index,
+          TNeedle const & needle,
+          TThreshold threshold,
+          Backtracking<TDistance, TSpec>,
+		  unsigned long const (&preComputedIndexPos)[LOOKUP_TABLE_SIZE])
+{
+    typedef typename Iterator<TIndex, TopDown<> >::Type       TIndexIt;
+    typedef typename Iterator<TNeedle const, Standard>::Type  TNeedleIt;
+
+    TIndexIt indexIt(index);
+    TNeedleIt needleIt = begin(needle, Standard());
+
+    _findBacktrackingMultiple(lH, ni, indexIt, needle, needleIt, 0, threshold, TDistance(), preComputedIndexPos);
+}
+
+template <typename TLocalHolder, typename TNeedleIter, typename TState, typename TIndex, typename TNeedle,
+          typename TThreshold, typename TDistance, typename TSpec>
+SEQAN_FUNC_ENABLE_IF(IsSequence<TNeedle>, void)
+_findImplSingle(TLocalHolder & lH,
+		  TNeedleIter & ni,
+		  TState & /*indexIt*/,
+          TIndex & index,
+          TNeedle const & needle,
+          TThreshold threshold,
+          Backtracking<TDistance, TSpec>,
+		  unsigned long const (&preComputedIndexPos)[LOOKUP_TABLE_SIZE])
+{
+    typedef typename Iterator<TIndex, TopDown<> >::Type       TIndexIt;
+    typedef typename Iterator<TNeedle const, Standard>::Type  TNeedleIt;
+
+    TIndexIt indexIt(index);
+    TNeedleIt needleIt = begin(needle, Standard());
+
+    _findBacktrackingSingle(lH, ni, indexIt, needle, needleIt, 0, threshold, TDistance(), preComputedIndexPos);
 }
 
 template <typename TState, typename TIndex, typename TNeedle,

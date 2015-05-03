@@ -268,6 +268,24 @@ inline void iterate(TContainer & c, TFunctor f, Tag<TIterTag> const & iterTag, T
         f(it);
 }
 
+template <typename TContainer, typename TFunctor, typename TIterTag, typename TParallelTag>
+inline void iterate2(TContainer & c, TFunctor f, Tag<TIterTag> const & iterTag, Tag<TParallelTag> const & /* tag */)
+{
+    typedef Tag<TIterTag> const                                     TIterSpec;
+    typedef typename Iterator<TContainer, TIterSpec>::Type          TIter;
+
+    for (TIter it = begin(c, iterTag); !atEnd(it, c); ++it)
+    {
+    	if (atEnd(it, c))
+    	{
+    		std::cerr << "AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH!" << std::endl;
+    		break;
+    	}
+        f(it);
+        ++it; // weil f einen constanten iterator übergibt, müssen wir sowohl hier als auch in f nochmal inkrementieren!
+    }
+}
+
 // ----------------------------------------------------------------------------
 // Function iterate(Parallel)
 // ----------------------------------------------------------------------------

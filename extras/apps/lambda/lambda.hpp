@@ -551,7 +551,7 @@ for (unsigned char i=0; i< lH.i*20; ++i) std::cout << std::endl;*/
 
 template <typename TLocalHolder>
 inline int
-generateSeeds(TLocalHolder & lH)
+generateSeeds(TLocalHolder & lH/*,  unsigned long (&countAminoAcids)[24]*/)
 {
     if (lH.options.doubleIndexing)
     {
@@ -565,8 +565,7 @@ generateSeeds(TLocalHolder & lH)
     for (unsigned long i = lH.indexBeginQry; i < lH.indexEndQry; ++i)
     {
         for (unsigned j = 0;
-             (j* lH.options.seedOffset + lH.options.seedLength)
-                <= length(value(lH.gH.redQrySeqs, i));
+             (j* lH.options.seedOffset + lH.options.seedLength) <= length(value(lH.gH.redQrySeqs, i));
              ++j)
         {
             appendValue(lH.seeds, infix(value(lH.gH.redQrySeqs, i),
@@ -574,6 +573,14 @@ generateSeeds(TLocalHolder & lH)
                                      j* lH.options.seedOffset
                                      + lH.options.seedLength),
                         Generous());
+
+            /*for (unsigned int z = 0; z < lH.options.seedLength; ++z)
+            {
+                countAminoAcids[(unsigned) ordValue(infix(value(lH.gH.redQrySeqs, i),
+						j* lH.options.seedOffset,
+						j* lH.options.seedOffset
+						+ lH.options.seedLength)[0])]++;
+            }*/
             appendValue(lH.seedRefs,  i, Generous());
             appendValue(lH.seedRanks, j, Generous());
 
@@ -674,7 +681,7 @@ __searchDoubleIndex(TLocalHolder & lH)
 
 template <typename BackSpec, typename TLocalHolder>
 inline void
-__searchSingleIndex(TLocalHolder & lH)
+__searchSingleIndex(TLocalHolder & lH, unsigned long const (&preComputedIndexPos)[LOOKUP_TABLE_SIZE])
 {
     typedef typename Iterator<decltype(lH.seeds) const, Rooted>::Type TSeedsIt;
     typedef typename Iterator<decltype(lH.gH.dbIndex),TopDown<>>::Type TIndexIt;
@@ -688,36 +695,36 @@ __searchSingleIndex(TLocalHolder & lH)
 //     }
     auto delegate = [&lH] (TIndexIt & indexIt,
                            TSeedsIt const & seedsIt,
-                           int /*score*/)
+                           int)
     {
         onFindSingleIndex(lH, seedsIt, indexIt);
     };
 
-    find(lH.gH.dbIndex, lH.seeds, int(lH.options.maxSeedDist), delegate,
-         Backtracking<BackSpec>());
+    //find(lH.gH.dbIndex, lH.seeds, int(lH.options.maxSeedDist), delegate, Backtracking<BackSpec>());
+    find(lH, lH.gH.dbIndex, lH.seeds, int(lH.options.maxSeedDist), delegate, Backtracking<BackSpec>(), preComputedIndexPos);
 }
 
 template <typename BackSpec, typename TLocalHolder>
 inline void
-__search(TLocalHolder & lH)
+__search(TLocalHolder & lH, unsigned long const (&preComputedIndexPos)[LOOKUP_TABLE_SIZE])
 {
 	//double mystart = std::clock();
     if (lH.options.doubleIndexing)
         __searchDoubleIndex<BackSpec>(lH);
     else
-        __searchSingleIndex<BackSpec>(lH);
+        __searchSingleIndex<BackSpec>(lH, preComputedIndexPos);
 	//std::cout << "\t\t" << (std::clock() - mystart) << std::endl;
 }
 
 template <typename TLocalHolder>
 inline void
-search(TLocalHolder & lH)
+search(TLocalHolder & lH, unsigned long const (&preComputedIndexPos)[LOOKUP_TABLE_SIZE])
 {
     if (lH.options.hammingOnly)
-        __search<Backtracking<HammingDistance>>(lH);
+        __search<Backtracking<HammingDistance>>(lH, preComputedIndexPos);
     else
 #if 0 // reactivate if edit-distance seeding is readded
-        __search<Backtracking<EditDistance>>(lH);
+        __search<Backtracking<EditDistance>>(lH, preComputedIndexPos);
 #else
         return;
 #endif
@@ -1138,7 +1145,7 @@ iterateMatches(TStream & stream, TLocalHolder & lH)
 //         std::cout << m.qryId << "\t" << getTrueQryId(m,lH.options, TFormat()) << "\n";
 //     }
 
-//     double topMaxMatchesMedianBitScore = 0;
+//     double topMaxMatchesMedianBitScore = 0;DoubleDickDude
     // outer loop over records
     // (only one iteration if single indexing is used)
     for (auto it = lH.matches.begin(),

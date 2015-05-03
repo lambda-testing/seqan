@@ -26,11 +26,14 @@
 
 #define FASTBUILD
 
+#define LOOKUP_TABLE_SIZE	24*24*24*4
+
 // #define SEQAN_DEBUG_INDEX
 
 #define _GLIBCXX_USE_C99 1
 //#define LAMBDA_BITCOPMRESSED_STRINGS 1
 
+#include <vector>
 #include <iostream>
 
 #include <seqan/basic.h>
@@ -133,6 +136,17 @@ realMain(LambdaOptions      const & options,
 // --------------------------------------------------------------------------
 // Function main()
 // --------------------------------------------------------------------------
+
+template <typename TAlphabet>
+void showAllLettersOfMyAlphabet(TAlphabet const &)
+{
+    typedef typename Size<TAlphabet>::Type TSize;
+    TSize alphSize = ValueSize<TAlphabet>::VALUE;
+    for (TSize i = 0; i < alphSize; ++i)
+        std::cout << i << ',' << TAlphabet(i) << "  ";
+    std::cout << std::endl;
+}
+
 
 // Program entry point.
 
@@ -527,7 +541,7 @@ preMain(LambdaOptions      const & options,
 //         }
 //     }
 
-    if (indexType == 0)
+    /*if (indexType == 0)
         return realMain<IndexSa<>>(options,
                                    TFormat(),
                                    TRedAlph(),
@@ -539,12 +553,15 @@ preMain(LambdaOptions      const & options,
                                    TRedAlph(),
                                    TScoreScheme(),
                                    TScoreExtension());
-    else
+    else*/
+    if (indexType == 2)
         return realMain<TBidirectionalFMIndex<>>(options,
                                    TFormat(),
-                                   TRedAlph(),
+                                   AminoAcid(),/*TRedAlph(),*/
                                    TScoreScheme(),
                                    TScoreExtension());
+    std::cout << "aahhhhhh! " << indexType << std::endl;
+    return 3;
 }
 
 /// REAL MAIN
@@ -627,6 +644,87 @@ realMain(LambdaOptions      const & options,
     if (ret)
         return ret;
 
+
+
+    unsigned long start3 = std::clock();
+
+
+    /*unsigned long countAminoAcids[24];
+    for (int z = 0; z < 24; ++z)
+    	countAminoAcids[z] = 0;*/
+
+    //std::vector<std::vector<unsigned long> > preComputedIndexPos(LOOKUP_TABLE_SIZE);
+    unsigned long preComputedIndexPos[LOOKUP_TABLE_SIZE] = { 0 };
+
+    typedef typename Size<TRedAlph>::Type TSize;
+	TSize alphSize = ValueSize<TRedAlph>::VALUE;
+
+    typedef typename Iterator<decltype(globalHolder.dbIndex), TopDown<> >::Type TIndexIt;
+	TIndexIt indexIt(globalHolder.dbIndex);
+
+	//unsigned int pos = 0;
+    //for (TSize a = 0; a < alphSize; ++a)
+    //{
+    	//auto vDescA1 = value(indexIt.fwdIter);
+    	//auto vDescA2 = value(indexIt.bwdIter);
+    	//goDown(indexIt.fwdIter, TRedAlph(a));
+
+	for (TSize b = 0; b < alphSize; ++b)
+	{
+		if (goDown(indexIt.fwdIter, TRedAlph(b)))
+		{
+			auto vDescB1 = value(indexIt.fwdIter);
+			auto vDescB2 = value(indexIt.bwdIter);
+			for (TSize c = 0; c < alphSize; ++c)
+			{
+				if (goDown(indexIt.fwdIter, TRedAlph(c)))
+				{
+					auto vDescC1 = value(indexIt.fwdIter);
+					auto vDescC2 = value(indexIt.bwdIter);
+					for (TSize d = 0; d < alphSize; ++d)
+					{
+						if (goDown(indexIt.fwdIter, TRedAlph(d)))
+						{
+							unsigned int pos = 4*b + 4*24*c + 4*24*24*d;
+							preComputedIndexPos[pos] = indexIt.fwdIter.vDesc.range.i1;
+							preComputedIndexPos[pos+1] = indexIt.fwdIter.vDesc.range.i2;
+							preComputedIndexPos[pos+2] = indexIt.bwdIter.vDesc.range.i1;
+							preComputedIndexPos[pos+3] = indexIt.bwdIter.vDesc.range.i2;
+							value(indexIt.fwdIter) = vDescC1;
+							value(indexIt.bwdIter) = vDescC2;
+						}
+						//++pos;
+					}
+					value(indexIt.fwdIter) = vDescB1;
+					value(indexIt.bwdIter) = vDescB2;
+				}
+				else
+				{
+					//pos += alphSize;
+				}
+			}
+		}
+		else
+		{
+			//pos += alphSize*alpSize;
+		}
+		goRoot(indexIt);
+	}
+        	//value(indexIt.fwdIter) = vDescA1;
+        	//value(indexIt.fwdIter) = vDescA2;
+        //}
+        //goRoot(indexIt);
+    //}
+    std::cout << "Clock-Ticks: " << (std::clock() - start3) << " ... " << ((std::clock() - start3)/CLOCKS_PER_SEC) << std::endl;
+
+
+
+
+
+
+
+
+
     if (options.doubleIndexing)
     {
         myPrint(options, 1,
@@ -657,6 +755,9 @@ realMain(LambdaOptions      const & options,
 
     uint64_t lastPercent = 0;
 
+    unsigned long start2 = std::clock();
+
+
     SEQAN_OMP_PRAGMA(parallel)
     {
         TLocalHolder localHolder(options, globalHolder);
@@ -669,7 +770,7 @@ realMain(LambdaOptions      const & options,
             localHolder.init(t);
 
             // seed
-            res = generateSeeds(localHolder);
+            res = generateSeeds(localHolder/*, countAminoAcids*/);
             if (res)
                 continue;
 
@@ -682,21 +783,24 @@ realMain(LambdaOptions      const & options,
 
             // search
 
-            double mystart, c1, c3;
+            //double mystart, c1, c3;
 
-            mystart = std::clock();
-            search(localHolder);
-            c1 = std::clock() - mystart;
+            //mystart = std::clock();
+            search(localHolder, preComputedIndexPos);
+            //c1 = std::clock() - mystart;
+            //std::cout << "\t\t\t\ta" << std::endl;
 
             // sort
             sortMatches(localHolder);
+            //std::cout << "\t\t\t\tb" << std::endl;
 
             // extend
-            mystart = std::clock();
+            //mystart = std::clock();
             res = iterateMatches(stream, localHolder);
-            c3 = std::clock() - mystart;
+            //c3 = std::clock() - mystart;
+            //std::cout << "\t\t\t\tc" << std::endl;
 
-            std::cout << "" << c1 << "\t" << c3 << std::endl;
+            //std::cout << "" << c1 << "\t" << c3 << std::endl;
             if (res)
                 continue;
 
@@ -718,6 +822,19 @@ realMain(LambdaOptions      const & options,
             globalHolder.stats += localHolder.stats;
         }
     }
+
+    std::cout << "Clock-Ticks: " << (std::clock() - start2) << " ... " << ((std::clock() - start2)/CLOCKS_PER_SEC) << std::endl;
+
+    /*std::cout << "-------------------" << std::endl;
+    unsigned long totalAA = 0;
+    for (int z = 0; z < 24; ++z)
+    {
+    	std::cout << AminoAcid(z) << ": " << countAminoAcids[z] << std::endl;
+    	totalAA += countAminoAcids[z];
+    }
+    std::cout << "-------------------" << std::endl;
+    std::cout << "Total: " << totalAA << std::endl;
+    std::cout << "-------------------" << std::endl;*/
 
     ret = writeBottom(stream,
                       globalHolder.dbSpecs,

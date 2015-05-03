@@ -105,6 +105,8 @@ int main(int argc, char const ** argv)
     if (res != seqan::ArgumentParser::PARSE_OK)
         return res == seqan::ArgumentParser::PARSE_ERROR;
 
+
+
   // CONVERT Run-time options to compile-time Format-Type
     switch (options.blastProg)
     {
@@ -225,6 +227,59 @@ mainAlphed(TRedAlph const & /**/,
     else
         return mainIndexTyped(TRedAlph(), options, Nothing(), TFormat());
 }
+
+/*template <BlastFormatProgram p,
+          typename TRedAlph,
+          typename TIndexSpecSpec>
+inline int
+mainIndexTyped2(TRedAlph const &,
+                LambdaIndexerOptions const & options,
+                TIndexSpecSpec const &,
+                BlastFormat<BlastFormatFile::INVALID_File, p, BlastFormatGeneration::INVALID_Generation> const &)
+{
+    using TFormat   = BlastFormat<BlastFormatFile::INVALID_File,
+                                  p,
+                                  BlastFormatGeneration::INVALID_Generation>;
+
+    using TOrigSet  = TCDStringSet<OrigSubjAlph<p>>;
+    using TTransSet = TCDStringSet<TransAlph<p>>;
+
+    TTransSet translatedSeqs;
+
+    {
+        TOrigSet originalSeqs;
+        int ret = 0;
+
+        // ids get saved to disk again immediately and are not kept in memory
+        ret = loadSubjSeqsAndIds(originalSeqs, options);
+        if (ret)
+            return ret;
+
+        // preserve lengths of untranslated sequences
+        _saveOriginalSeqLengths(originalSeqs.limits,
+                                options,
+                                SIsTranslated<TFormat>());
+
+        // translate or swap depending on program
+        translateOrSwap(translatedSeqs, originalSeqs, options);
+    }
+
+    // dump translated and unreduced sequences
+    dumpTranslatedSeqs(translatedSeqs, options);
+
+    // see if final sequence set actually fits into index
+    if (!checkIndexSize(translatedSeqs))
+        return -1;
+
+	//using TIndexSpec = TFMIndex<TIndexSpecSpec>;
+	using TIndexSpec = TBidirectionalFMIndex<TIndexSpecSpec>;
+	generateIndexAndDump2<TIndexSpec,TIndexSpecSpec>(translatedSeqs,
+													options,
+													TRedAlph(),
+													TFormat());
+
+    return 0;
+}*/
 
 template <BlastFormatProgram p,
           typename TRedAlph,

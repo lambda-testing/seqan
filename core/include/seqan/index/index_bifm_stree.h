@@ -126,7 +126,7 @@ public:
 	//typedef	typename HistoryStackEntry_<Iter>::Type		TStackEntry;
 	//typedef String<TStackEntry, Block<> >				TStack;
 
-	TFwdIndex const	*index;		// container of all necessary tables
+	TFwdIndex 		const *index;		// container of all necessary tables
 	TRevIndexIter 	*revIter;	// container of all necessary tables
 	TVertexDesc		vDesc;		// current interval in suffix array and
 								// right border of parent interval (needed in goRight)
@@ -223,43 +223,57 @@ inline bool _getNodeByChar(Iter<Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOc
     typedef typename Size<TIndex>::Type													TRangeSize;
     typedef Pair<TRangeSize>															TRange;
 
-	TIndex const & index = container(it);
+	/*typedef typename BiFMReversedText<TText>::Type										TRevText;
+    typedef Index<TRevText, FMIndex<TOccSpec, FMIndexConfig<TOccSpec, TLengthSum, FMBidirectional> > >	TRevIndex;
+    typedef typename Fibre<TRevIndex, FibreLF>::Type										TRevLF;*/
+
+    TIndex const & index = container(it);
 	TLF const & lf = indexLF(index);
-    TRange tmpRange;
 
-	unsigned int sum = 0;
-	int const alpSize = ValueSize<TAlphabet>::VALUE;
-
-	for (TAlphabet _d = 0; _d < std::min(alpSize, (int) c); ++_d)
-	{
-		unsigned int i1, i2;
-		TChar d = TAlphabet(_d);
-
-		tmpRange = range(index, vDesc);
-		i1 = lf(tmpRange.i1, d);
-		i2 = lf(tmpRange.i2, d);
-
-		if (i1 < i2)
-			sum += i2 - i1;
-	}
-
-	bool isRoot = _isRoot(vDesc);
 	_range = range(index, vDesc);
 	_range.i1 = lf(_range.i1, c);
 	_range.i2 = lf(_range.i2, c);
 
-    if (_range.i1 < _range.i2)
-    {
-    	// historyPush nicht änderbar, wg. index_fm_stree.h Z. 300 ff. und eigener _getNodeByChar-Impl.! Gibt sonst Probleme mit der Reihenfolge
-        _historyPush(*it.revIter); // "it" itself is already pushed in the wrapping method
+	if (_range.i1 < _range.i2)
+	{
+		// historyPush nicht änderbar, wg. index_fm_stree.h Z. 300 ff. und eigener _getNodeByChar-Impl.! Gibt sonst Probleme mit der Reihenfolge
+		_historyPush(*it.revIter); // "it" itself is already pushed in the wrapping method
 
-		if (isRoot)
+		if (_isRoot(vDesc))
 		{
+			/*TRevIndex const & revIndex = container(*it.revIter);
+			TRevLF const & revLf = indexLF(revIndex);
+
+			TRange revRange;
+
+			revRange = range(revIndex, vDesc);
+			revRange.i1 = revLf(revRange.i1, c);
+			revRange.i2 = revLf(revRange.i2, c);
+
+			value(*it.revIter).range.i1 = revRange.i1;
+			value(*it.revIter).range.i2 = revRange.i2;*/
 			value(*it.revIter).range.i1 = _range.i1;
 			value(*it.revIter).range.i2 = _range.i2;
 		}
 		else
 		{
+			TRange tmpRange;
+			unsigned int sum = 0;
+			int const alpSize = ValueSize<TAlphabet>::VALUE;
+			for (TAlphabet _d = 0; _d < std::min(alpSize, (int) c/*int*/ /*value(ordValue(c))*/); ++_d)
+			{
+				unsigned int i1, i2;
+				TChar d = TAlphabet(_d);
+				tmpRange = range(index, vDesc);
+				i1 = lf(tmpRange.i1, d);
+				i2 = lf(tmpRange.i2, d);
+
+				if (i1 < i2)
+				{
+					//std::cout << "......... " << d << "(" << i2 << "-" << i1 << ")" << std::endl;
+					sum += i2 - i1;
+				}
+			}
 			sum += _countSentinels(index, vDesc.range);
 			value(*it.revIter).range.i1 += sum;
 			value(*it.revIter).range.i2 = value(*it.revIter).range.i1 + (_range.i2 - _range.i1);
@@ -267,10 +281,10 @@ inline bool _getNodeByChar(Iter<Index<TText, FMIndex<TOccSpec, FMIndexConfig<TOc
 		value(*it.revIter).lastChar = c;
 		value(*it.revIter).repLen++;
 
-        return true;
-    }
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
 // ----------------------------------------------------------------------------

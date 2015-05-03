@@ -56,7 +56,19 @@ struct BiFMReversedText
     typedef ModifiedString<TText, ModReverse> Type;
 };
 
+template <typename TText>
+struct BiFMReversedText<ModifiedString<TText, ModReverse> >
+{
+    typedef TText Type;
+};
+
 template <typename TText, typename TTextConfig>
+struct BiFMReversedText<StringSet<TText, TTextConfig> >
+{
+    typedef StringSet<TText, TTextConfig> Type;
+};
+
+/*template <typename TText, typename TTextConfig>
 struct BiFMReversedText<StringSet<TText, TTextConfig> >
 {
     typedef StringSet<ModifiedString<TText, ModReverse>, TTextConfig> Type;
@@ -66,13 +78,7 @@ template <typename TText, typename TTextConfig>
 struct BiFMReversedText<StringSet<ModifiedString<TText, ModReverse>, TTextConfig> >
 {
     typedef StringSet<TText, TTextConfig> Type;
-};
-
-template <typename TText>
-struct BiFMReversedText<ModifiedString<TText, ModReverse> >
-{
-    typedef TText Type;
-};
+};*/
 
 // ----------------------------------------------------------------------------
 // Class BidirectionalFMIndex
@@ -99,6 +105,73 @@ struct BiFMReversedText<ModifiedString<TText, ModReverse> >
  * The FM index consists of various @link Fibre @endlink of which the most important ones are the compressed
  * suffix array and the LF table, which provides all necessary information for the LF mapping.
  */
+
+template <typename TXXX, typename TXXX2, typename TStringSetConfig, typename TSpec, typename TSpec2, typename TBidirectional>
+class Index<StringSet<ModifiedString<TXXX, TXXX2>, TStringSetConfig>, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec2, TBidirectional> > >
+{
+	typedef typename BiFMReversedText<StringSet<ModifiedString<TXXX, TXXX2>, TStringSetConfig> >::Type								TRevText;
+	typedef Index<TRevText, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >							TRevIndex;
+	typedef Index<StringSet<ModifiedString<TXXX, TXXX2>, TStringSetConfig>, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >	TFwdIndex;
+
+	public:
+
+	TRevText	revText;
+	TRevIndex		rev;
+	TFwdIndex		fwd;
+
+	Index()	{}
+
+	Index(StringSet<ModifiedString<TXXX, TXXX2>, TStringSetConfig> &)
+	{
+		std::cout << "Not implemented yet!" << std::endl;
+		std::cerr << "Not implemented yet!" << std::endl;
+	}
+};
+
+template <typename TText, typename TStringSetConfig, typename TSpec, typename TSpec2, typename TBidirectional>
+class Index<StringSet<TText, TStringSetConfig>, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec2, TBidirectional> > >
+{
+	typedef typename BiFMReversedText<StringSet<TText, TStringSetConfig> >::Type								TRevText;
+	typedef Index<TRevText, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >							TRevIndex;
+	typedef Index<StringSet<TText, TStringSetConfig>, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >	TFwdIndex;
+
+	public:
+
+	TRevText	revText;
+	TRevIndex		rev;
+	TFwdIndex		fwd;
+
+	Index()	{}
+
+	Index(StringSet<TText, TStringSetConfig> & text) :
+		//revText(text),
+		rev(revText),
+		fwd(text)
+	{
+		std::cout << "Alles okay!" << std::endl;
+		typedef typename Iterator<StringSet<TText, TStringSetConfig> >::Type TIter;
+		for (TIter it = begin(text); it != end(text); ++it)
+		{
+			TText revString;
+			resize(revString, length(*it));
+
+			typedef typename Iterator<TText>::Type TStrIter;
+			TStrIter strit = begin(*it);
+			TStrIter stritEnd = end(*it);
+
+			unsigned int z = 0;
+			while (strit != stritEnd)
+			{
+				revString[length(*it) - z - 1] = *strit;
+				++z;
+				++strit;
+			}
+
+			appendValue(revText, revString);
+			//std::cout << revString << std::endl;
+		}
+	}
+};
 
 template <typename TText, typename TSpec, typename TSpec2, typename TBidirectional>
 class Index<TText, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec2, TBidirectional> > >

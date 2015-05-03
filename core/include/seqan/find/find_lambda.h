@@ -149,6 +149,10 @@ template <typename TState, typename TText, typename TPattern, typename TThreshol
 inline void
 _findStateInit(TState & /* s */, TText const & /* t */, TPattern const & /* p */, TThreshold /* t */, TAlgorithm) {}
 
+template <typename TState, typename TText, typename TPattern, typename TThreshold, typename TAlgorithm>
+inline void
+_findStateInit2(TState & /* s */, TText const & /* t */, TPattern const & /* p */, TPattern const & /* p */, TThreshold /* t */, TAlgorithm) {}
+
 // ----------------------------------------------------------------------------
 // Function _findStatesPoolInit()
 // ----------------------------------------------------------------------------
@@ -216,7 +220,67 @@ inline void find(TText & text,
         _findStateInit(state, text, needle, threshold, TAlgorithm());
         _findImpl(state, text, needle, threshold, delegator, TAlgorithm());
     },
-    Rooted(), TThreading());
+	Rooted(), TThreading());
+}
+
+template <typename TLocalHolder, typename TText, typename TNeedle_, typename TSSetSpec,
+          typename TThreshold, typename TDelegate, typename TAlgorithm, typename TThreading>
+inline void find(TLocalHolder & lH,
+				 TText & text,
+                 StringSet<TNeedle_, TSSetSpec> const & needles,
+                 TThreshold threshold,
+                 TDelegate && /*delegate*/,
+                 TAlgorithm,
+                 TThreading,
+				 unsigned long const (&preComputedIndexPos)[LOOKUP_TABLE_SIZE])
+{
+    typedef StringSet<TNeedle_, TSSetSpec> const                    TNeedles;
+    typedef typename Value<TNeedles>::Type                          TNeedle;
+    typedef typename Iterator<TNeedles, Rooted>::Type               TNeedlesIt;
+    typedef typename Reference<TNeedlesIt>::Type                    TNeedleRef;
+
+    typedef typename FindState_<TText, TNeedle, TAlgorithm>::Type   TState;
+    typedef typename StatesPool_<TState, TThreading>::Type          TStatesPool;
+    typedef typename HasStatesPool_<TState, TThreading>::Type       HasStatesPool;
+
+    TStatesPool pool;
+    _findStatesPoolInit(pool, HasStatesPool());
+
+    /*TNeedlesIt it = begin(needles);
+    std::cout << "----------------------------" << '\n';
+    for (; it != end(needles); ++it)
+    {
+        std::cout << *it << '\n';
+    }
+    std::cout << "----------------------------" << '\n';*/
+
+    typedef Tag<Rooted_> const                                     TIterSpec;
+    typedef typename Iterator<TNeedles, TIterSpec>::Type          TIter;
+
+	for (TIter it = begin(needles, Rooted()); !atEnd(it, needles); ++it)
+	{
+		TState & state = _findPickState(pool, HasStatesPool());
+		TNeedleRef const needle1 = value(it);
+		_findStateInit(state, text, needle1, threshold, TAlgorithm());
+
+		if (!atEnd(it+5, needles) &&
+			lH.seedRefs[position(it+0)] == lH.seedRefs[position(it+1)] &&
+			lH.seedRefs[position(it+1)] == lH.seedRefs[position(it+2)] &&
+			lH.seedRefs[position(it+2)] == lH.seedRefs[position(it+3)] &&
+			lH.seedRefs[position(it+3)] == lH.seedRefs[position(it+4)] &&
+			lH.seedRefs[position(it+4)] == lH.seedRefs[position(it+5)]
+		)
+		{
+			_findImplMultiple(lH, it, state, text, needle1, threshold, TAlgorithm(), preComputedIndexPos);
+			it += 5;
+		}
+		else
+		{
+			_findImplSingle(lH, it, state, text, needle1, threshold, TAlgorithm(), preComputedIndexPos);
+		}
+		//std::cout << lH.seedRefs[position(it)] << std::endl;
+		//std::cout << lH.seedRefs[position(it)] << std::endl;
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -232,6 +296,19 @@ inline void find(TText & text,
                  TAlgorithm)
 {
     find(text, needles, threshold, delegate, TAlgorithm(), Serial());
+}
+
+template <typename TLocalHolder, typename TText, typename TNeedle, typename TSSetSpec,
+          typename TThreshold, typename TDelegate, typename TAlgorithm>
+inline void find(TLocalHolder & lH,
+				 TText & text,
+                 StringSet<TNeedle, TSSetSpec> const & needles,
+                 TThreshold threshold,
+                 TDelegate && delegate,
+                 TAlgorithm,
+				 unsigned long const (&preComputedIndexPos)[LOOKUP_TABLE_SIZE])
+{
+    find(lH, text, needles, threshold, delegate, TAlgorithm(), Serial(), preComputedIndexPos);
 }
 
 }

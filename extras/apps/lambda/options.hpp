@@ -102,6 +102,7 @@ struct Fibre<Index<TText, IndexSa<SaAdvancedSort<TSpec> > >, FibreTempSA>
 template <typename TText, typename TSpec>
 struct DefaultIndexCreator<Index<TText, IndexSa<SaAdvancedSort<TSpec>> >, FibreSA>
 {
+    //typedef Skew7 Type;							// standard suffix array creator is skew7
     typedef SaAdvancedSort<TSpec> Type;
 //     static std::function<void(void)> progressCallback;
 };
@@ -122,6 +123,7 @@ struct Fibre<Index<TText, FMIndex<SaAdvancedSort<TSpec>, TConfig> >, FibreTempSA
 template < typename TText, typename TSpec, typename TConfig>
 struct DefaultIndexCreator<Index<TText, FMIndex<SaAdvancedSort<TSpec>, TConfig> >, FibreSA>
 {
+    //typedef Skew7 Type;							// standard suffix array creator is skew7
     typedef SaAdvancedSort<TSpec> Type;
 //     std::function<void(void)> progressCallback;
 };
@@ -141,6 +143,7 @@ struct Fibre<Index<TText, BidirectionalFMIndex<SaAdvancedSort<TSpec>, TConfig> >
 template < typename TText, typename TSpec, typename TConfig>
 struct DefaultIndexCreator<Index<TText, BidirectionalFMIndex<SaAdvancedSort<TSpec>, TConfig> >, FibreSA>
 {
+    //typedef Skew7 Type;							// standard suffix array creator is skew7
     typedef SaAdvancedSort<TSpec> Type;
 //     std::function<void(void)> progressCallback;
 };

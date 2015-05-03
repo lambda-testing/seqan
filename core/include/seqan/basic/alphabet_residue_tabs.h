@@ -492,30 +492,57 @@ struct TranslateTableAAToAscii_
 template <typename T>
 char const TranslateTableAAToAscii_<T>::VALUE[24] = 
 {
-    'A', // 0 Ala Alanine                 
-    'R', // 1 Arg Arginine                
-    'N', // 2 Asn Asparagine              
-    'D', // 3 Asp Aspartic Acid           
-    'C', // 4 Cys Cystine                 
-    'Q', // 5 Gln Glutamine               
-    'E', // 6 Glu Glutamic Acid           
-    'G', // 7 Gly Glycine                 
-    'H', // 8 His Histidine               
-    'I', // 9 Ile Isoleucine              
-    'L', //10 Leu Leucine                 
-    'K', //11 Lys Lysine                  
-    'M', //12 Met Methionine              
-    'F', //13 Phe Phenylalanine           
-    'P', //14 Pro Proline                 
-    'S', //15 Ser Serine                  
-    'T', //16 Thr Threonine               
-    'W', //17 Trp Tryptophan              
-    'Y', //18 Tyr Tyrosine                
-    'V', //19 Val Valine                  
-    'B', //20 Aspartic Acid, Asparagine   
-    'Z', //21 Glutamic Acid, Glutamine    
-    'X', //22 Unknown                     
-    '*'  //23 Terminator                  
+		'S', //23513922
+		'R', //22423676
+		'L', //22232223
+		'A', //15604747
+		'P', //14720649
+		'G', //14256701
+		'I', //13625733
+		'T', //13129059
+		'V', //13105955
+		'F', //10643388
+		'K', //10480825
+		'*', // 9716633
+		'Q', //8834058
+		'E', //8799344
+		'C', //8191033
+		'N', //8156204
+		'D', //8156048
+		'H', //7950075
+		'Y', //7213934
+		'M', //4790853
+		'W', //3945125
+		'X', //58464
+		'B', //0
+		'Z'  //       0
+
+
+		/*'A', // 0 Ala Alanine
+	    'R', // 1 Arg Arginine
+	    'N', // 2 Asn Asparagine
+	    'D', // 3 Asp Aspartic Acid
+	    'C', // 4 Cys Cystine
+	    'Q', // 5 Gln Glutamine
+	    'E', // 6 Glu Glutamic Acid
+	    'G', // 7 Gly Glycine
+	    'H', // 8 His Histidine
+	    'I', // 9 Ile Isoleucine
+	    'L', //10 Leu Leucine
+	    'K', //11 Lys Lysine
+	    'M', //12 Met Methionine
+	    'F', //13 Phe Phenylalanine
+	    'P', //14 Pro Proline
+	    'S', //15 Ser Serine
+	    'T', //16 Thr Threonine
+	    'W', //17 Trp Tryptophan
+	    'Y', //18 Tyr Tyrosine
+	    'V', //19 Val Valine
+	    'B', //20 Aspartic Acid, Asparagine
+	    'Z', //21 Glutamic Acid, Glutamine
+	    'X', //22 Unknown
+	    '*'  //23 Terminator
+	                  */
 };
 
 template <typename T = void>

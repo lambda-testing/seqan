@@ -446,6 +446,163 @@ createIndexActual(TIndex & index,
     indexCreate(index, text, TFibre(), [] () {});
 }
 
+template <typename A, typename B>
+inline bool
+leftExtend(A &, B) {return true;}
+
+template <typename A, typename B>
+inline bool
+rightExtend(A &, B) {return true;}
+
+
+/*template <typename TIndexSpec,
+		  typename TIndexSpecSpec,
+          typename TString,
+          typename TSpec,
+          typename TRedAlph_,
+          BlastFormatProgram p>
+inline void
+generateIndexAndDump2(StringSet<TString, TSpec> & seqs,
+                     LambdaIndexerOptions const & options,
+                     TRedAlph_ const &,
+                     BlastFormat<BlastFormatFile::INVALID_File,p,
+                       BlastFormatGeneration::INVALID_Generation> const &)
+{
+    using TTransSeqs    = TCDStringSet<TransAlph<p>>;
+
+    using TRedAlph      = RedAlph<p, TRedAlph_>; // ensures == Dna5 for BlastN
+    //using TRedSeqVirt   = ModifiedString<String<TransAlph<p>, PackSpec>,
+    //                        ModView<FunctorConvert<TransAlph<p>,TRedAlph>>>;
+    //using TRedSeqsVirt  = StringSet<TRedSeqVirt, Owner<ConcatDirect<>>>;
+
+    static int constexpr indexIsFM2           = 2;
+
+    static bool constexpr
+    noReduction         = true;
+
+    using TRedSeqs      = TTransSeqs;    // modview
+    using TRedSeqsACT   = TTransSeqs &;
+
+    using TDbIndex      = Index<TRedSeqs, TIndexSpec>;
+    using TFullFibre    = FibreSALF;
+    static bool constexpr
+    hasProgress         = std::is_same<TIndexSpecSpec,
+                                       SaAdvancedSort<QuickSortBucketTag>>::value
+                          || std::is_same<TIndexSpecSpec,
+                                       SaAdvancedSort<MergeSortTag>>::value;
+
+//     using TCountPartial = std::is_same<TIndexSpecSpec,
+//                                        SaAdvancedSort<MergeSortTag>>;
+// TODO debug this
+//     using TProgressCounter = typename std::conditional<
+//                                 hasProgress,
+//                                 ComparisonCounter<TRedSeqs, TCountPartial>,
+//                                 ComparisonCounter<TRedSeqs, Nothing>>::type;
+//     using TProgressCounter = ComparisonCounter<TRedSeqs, Nothing>;
+
+    // Generate Index
+    myPrint(options, 1, "Generating Index…");
+
+    // FM-Index needs reverse input
+    if (indexIsFM2 > 0)
+        reverse(seqs);
+
+    TRedSeqsACT redSubjSeqs(seqs);
+
+    std::cout << std::endl << length(redSubjSeqs) << std::endl;
+    for (auto ittt = begin(redSubjSeqs); ittt != end(redSubjSeqs); ++ittt)
+    {
+        std::cout << *ittt << '\n';
+    }
+
+    if (hasProgress)
+        myPrint(options, 1, "progress:\n"
+                "0%  10%  20%  30%  40%  50%  60%  70%  80%  90%  100%\n|");
+    TDbIndex dbIndex(redSubjSeqs);
+
+    // instantiate SA
+    // create SA with progressCallback function
+	createIndexActual(dbIndex, redSubjSeqs, TFullFibre(),
+					  TIndexSpecSpec());
+
+    typedef typename Iterator<TDbIndex, TopDown<> >::Type       TIndexIt;
+    TIndexIt dbIndexIter(dbIndex);
+
+	//goDown(dbIndexIter, AminoAcid('F'));
+	//std::cout << dbIndexIter.vDesc.range.i1 << "\t" << dbIndexIter.vDesc.range.i2 << std::endl;
+	//goDown(dbIndexIter, AminoAcid('A'));
+	//std::cout << dbIndexIter.vDesc.range.i1 << "\t" << dbIndexIter.vDesc.range.i2 << std::endl;
+
+	rightExtend(dbIndexIter, AminoAcid('A'));
+	std::cout << dbIndexIter.fwdIter.vDesc.range.i1 << "\t" << dbIndexIter.fwdIter.vDesc.range.i2 << "\t"
+			<< dbIndexIter.bwdIter.vDesc.range.i1 << "\t" << dbIndexIter.bwdIter.vDesc.range.i2 << std::endl;
+	rightExtend(dbIndexIter, AminoAcid('F'));
+	std::cout << dbIndexIter.fwdIter.vDesc.range.i1 << "\t" << dbIndexIter.fwdIter.vDesc.range.i2 << "\t"
+			<< dbIndexIter.bwdIter.vDesc.range.i1 << "\t" << dbIndexIter.bwdIter.vDesc.range.i2 << std::endl;
+	//rightExtend(dbIndexIter, AminoAcid('X'));
+	//std::cout << dbIndexIter.fwdIter.vDesc.range.i1 << "\t" << dbIndexIter.fwdIter.vDesc.range.i2 << "\t"
+	//		<< dbIndexIter.bwdIter.vDesc.range.i1 << "\t" << dbIndexIter.bwdIter.vDesc.range.i2 << std::endl;
+
+	auto subjOccs1 = getOccurrences(dbIndexIter.fwdIter);
+	auto subjOccs2 = getOccurrences(dbIndexIter.bwdIter);
+	std::cout << "--------------------------" << std::endl;
+	std::cout << "XXXXXXXX: " << length(subjOccs1) << "/" << length(subjOccs2) << std::endl;
+
+	//for (unsigned j = 0; j < length(subjOccs1); ++j)
+	//	std::cout << "YYYYYYYYYYYYYY: " << subjOccs1[j] << std::endl;
+	//std::cout << "--------------------------" << std::endl;
+
+	//for (unsigned j = 0; j < length(subjOccs2); ++j)
+	//	std::cout << "YYYYYYYYYYYYYY: " << subjOccs2[j] << std::endl;
+	std::cout << "--------------------------" << std::endl;
+
+	goRoot(dbIndexIter);
+
+	//leftExtend(dbIndexIter, AminoAcid('X'));
+	//std::cout << dbIndexIter.fwdIter.vDesc.range.i1 << "\t" << dbIndexIter.fwdIter.vDesc.range.i2 << "\t"
+	//		<< dbIndexIter.bwdIter.vDesc.range.i1 << "\t" << dbIndexIter.bwdIter.vDesc.range.i2 << std::endl;
+	leftExtend(dbIndexIter, AminoAcid('F'));
+	std::cout << dbIndexIter.fwdIter.vDesc.range.i1 << "\t" << dbIndexIter.fwdIter.vDesc.range.i2 << "\t"
+			<< dbIndexIter.bwdIter.vDesc.range.i1 << "\t" << dbIndexIter.bwdIter.vDesc.range.i2 << std::endl;
+	leftExtend(dbIndexIter, AminoAcid('A'));
+	std::cout << dbIndexIter.fwdIter.vDesc.range.i1 << "\t" << dbIndexIter.fwdIter.vDesc.range.i2 << "\t"
+			<< dbIndexIter.bwdIter.vDesc.range.i1 << "\t" << dbIndexIter.bwdIter.vDesc.range.i2 << std::endl;
+
+	subjOccs1 = getOccurrences(dbIndexIter.fwdIter);
+	subjOccs2 = getOccurrences(dbIndexIter.bwdIter);
+	std::cout << "--------------------------" << std::endl;
+	std::cout << "XXXXXXXX: " << length(subjOccs1) << "/" << length(subjOccs2) << std::endl;
+
+	//for (unsigned j = 0; j < length(subjOccs1); ++j)
+	//	std::cout << "YYYYYYYYYYYYYY: " << subjOccs1[j] << std::endl;
+	//std::cout << "--------------------------" << std::endl;
+
+	//for (unsigned j = 0; j < length(subjOccs2); ++j)
+	//	std::cout << "YYYYYYYYYYYYYY: " << subjOccs2[j] << std::endl;
+	std::cout << "--------------------------" << std::endl;
+
+    // since we dumped unreduced sequences before and reduced sequences are
+    // only "virtual" we clear them before dump
+    clear(seqs);
+    if (!noReduction)
+        clear(redSubjSeqs.limits);
+
+    if (!hasProgress)
+        myPrint(options, 1, " done.\n");
+
+    // Dump Index
+    myPrint(options, 1, "Writing Index to disk…");
+    std::string path = toCString(options.dbFile);
+    path += '.' + std::string(_alphName(TRedAlph()));
+    if (indexIsFM2 > 0)
+        path += ".fm";
+    else
+        path += ".sa";
+    save(dbIndex, path.c_str());
+    myPrint(options, 1, " done.\n");
+}*/
+
+
 template <typename TIndexSpec,
           typename TIndexSpecSpec,
           typename TString,
@@ -534,13 +691,12 @@ generateIndexAndDump(StringSet<TString, TSpec> & seqs,
         createIndexActual(dbIndex, redSubjSeqs, TFullFibre(),
                          Nothing());
 
-    /*typedef StringSet<String<SimpleType<unsigned char, Dna5_>, Alloc<> >, Owner<ConcatDirect<void> > > MyText;
-    typedef Index<MyText, BidirectionalFMIndex<void, FMIndexConfig<void, FMUnidirectional> > > MyIndex;
-    typedef Iter<MyIndex, VSTree<TopDown<ParentLinks<> > > > MyIter;
-    MyText texti;
-    MyIndex indi(texti);
-    MyIter itti(indi);
-    getOccurrences(itti);*/
+    /*typedef typename Iterator<TDbIndex, TopDown<> >::Type       TIndexIt;
+	TIndexIt dbIndexIter(dbIndex);
+
+	goDown(dbIndexIter, AminoAcid('A'));
+	goDown(dbIndexIter, AminoAcid('F'));
+	goRoot(dbIndexIter);*/
 
     // instantiate potential rest
 //     std::cout << "\nActualNumComparisons: " << counter._comparisons

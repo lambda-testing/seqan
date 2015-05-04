@@ -549,9 +549,9 @@ loadQuery(GlobalDataHolder<TRedAlph, TScoreScheme, TIndexSpec, m, p, g> &
 << std::endl; \
 for (unsigned char i=0; i< lH.i*20; ++i) std::cout << std::endl;*/
 
-template <typename TLocalHolder>
+template <typename TLocalHolder, typename TRedAlph>
 inline int
-generateSeeds(TLocalHolder & lH/*,  unsigned long (&countAminoAcids)[24]*/)
+generateSeeds(TLocalHolder & lH, /*unsigned long (&countAminoAcids)[10],*/ TRedAlph const &)
 {
     if (lH.options.doubleIndexing)
     {
@@ -574,12 +574,41 @@ generateSeeds(TLocalHolder & lH/*,  unsigned long (&countAminoAcids)[24]*/)
                                      + lH.options.seedLength),
                         Generous());
 
+            /*std::cout <<  infix(value(lH.gH.redQrySeqs, i),
+					j* lH.options.seedOffset,
+					j* lH.options.seedOffset
+					+ lH.options.seedLength)[0];*/
+
             /*for (unsigned int z = 0; z < lH.options.seedLength; ++z)
             {
-                countAminoAcids[(unsigned) ordValue(infix(value(lH.gH.redQrySeqs, i),
+            	TRedAlph chr = infix(value(lH.gH.redQrySeqs, i),
 						j* lH.options.seedOffset,
 						j* lH.options.seedOffset
-						+ lH.options.seedLength)[0])]++;
+						+ lH.options.seedLength)[z];
+
+            	unsigned short pos = 10;
+            	if (chr < TRedAlph(9)) pos = 9;
+            	if (chr < TRedAlph(8)) pos = 8;
+            	if (chr < TRedAlph(7)) pos = 7;
+            	if (chr < TRedAlph(6)) pos = 6;
+            	if (chr < TRedAlph(5)) pos = 5;
+            	if (chr < TRedAlph(4)) pos = 4;
+            	if (chr < TRedAlph(3)) pos = 3;
+            	if (chr < TRedAlph(2)) pos = 2;
+            	if (chr < TRedAlph(1)) pos = 1;
+            	if (chr < TRedAlph(0)) pos = 0;
+            	//std::cout << chr << ":" << pos << std::endl;
+                countAminoAcids[pos]++;
+
+                std::cout << infix(value(lH.gH.redQrySeqs, i),
+						j* lH.options.seedOffset,
+						j* lH.options.seedOffset
+						+ lH.options.seedLength)
+								<< "\t" << infix(value(lH.gH.redQrySeqs, i),
+										j* lH.options.seedOffset,
+										j* lH.options.seedOffset
+										+ lH.options.seedLength)[z] << "\t" << value(lH.gH.redQrySeqs, i)[j* lH.options.seedOffset+z]
+												<< std::endl;
             }*/
             appendValue(lH.seedRefs,  i, Generous());
             appendValue(lH.seedRanks, j, Generous());
@@ -700,8 +729,8 @@ __searchSingleIndex(TLocalHolder & lH, unsigned long const (&preComputedIndexPos
         onFindSingleIndex(lH, seedsIt, indexIt);
     };
 
-    //find(lH.gH.dbIndex, lH.seeds, int(lH.options.maxSeedDist), delegate, Backtracking<BackSpec>());
-    find(lH, lH.gH.dbIndex, lH.seeds, int(lH.options.maxSeedDist), delegate, Backtracking<BackSpec>(), preComputedIndexPos);
+    find(lH.gH.dbIndex, lH.seeds, int(lH.options.maxSeedDist), delegate, Backtracking<BackSpec>());
+    //find(lH, lH.gH.dbIndex, lH.seeds, int(lH.options.maxSeedDist), delegate, Backtracking<BackSpec>(), preComputedIndexPos);
 }
 
 template <typename BackSpec, typename TLocalHolder>

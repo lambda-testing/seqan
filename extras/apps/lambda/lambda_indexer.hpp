@@ -446,14 +446,6 @@ createIndexActual(TIndex & index,
     indexCreate(index, text, TFibre(), [] () {});
 }
 
-template <typename A, typename B>
-inline bool
-leftExtend(A &, B) {return true;}
-
-template <typename A, typename B>
-inline bool
-rightExtend(A &, B) {return true;}
-
 
 /*template <typename TIndexSpec,
 		  typename TIndexSpecSpec,
@@ -624,7 +616,7 @@ generateIndexAndDump(StringSet<TString, TSpec> & seqs,
 
     using TRedAlph      = RedAlph<p, TRedAlph_>; // ensures == Dna5 for BlastN
 
-    using TTransRedSeqs    = TCDStringSet<TRedAlph>;
+   // using TTransRedSeqs    = TCDStringSet<TRedAlph>;
 
     using TRedSeqVirt   = ModifiedString<String<TransAlph<p>, PackSpec>,
                             ModView<FunctorConvert<TransAlph<p>,TRedAlph>>>;
@@ -640,11 +632,11 @@ generateIndexAndDump(StringSet<TString, TSpec> & seqs,
     using TRedSeqs      = typename std::conditional<
                             noReduction,
                             TTransSeqs,             // owner
-							TTransRedSeqs/*TRedSeqsVirt*/>::type;    // modview
+							/*TTransRedSeqs*/TRedSeqsVirt>::type;    // modview
     using TRedSeqsACT   = typename std::conditional<
                             noReduction,
                             TTransSeqs &,           // reference to owner
-							TTransRedSeqs &/*TRedSeqsVirt*/>::type;    // modview
+							/*TTransRedSeqs &*/TRedSeqsVirt>::type;    // modview
 
     using TDbIndex      = Index<TRedSeqs, TIndexSpec>;
     using TFullFibre    = typename std::conditional< (indexIsFM2 > 0),
@@ -675,8 +667,7 @@ generateIndexAndDump(StringSet<TString, TSpec> & seqs,
     if (indexIsFM2 > 0)
         reverse(seqs);
 
-    //if (!noReduction)
-    //{
+    /*
         TTransRedSeqs seqs2;
 
     	typedef typename Iterator<StringSet<TString, TSpec> >::Type TStrSetIter;
@@ -685,19 +676,15 @@ generateIndexAndDump(StringSet<TString, TSpec> & seqs,
     		String<TRedAlph, PackSpec> tmp2 = (TString) *it;
     		appendValue(seqs2, tmp2);
     		//std::cout << tmp2 << std::endl;
-    	}
+    	}*/
 
         /*String<SimpleType<unsigned char, AminoAcid>, Alloc<> > test = "ARKNDQECGHILMVFWYPST";
         String<SimpleType<unsigned char, ReducedAminoAcid_<Tag<Murphy10_> > >, Alloc<> > test2 = test;
 
         std::cout << test << " . " << test2 << std::endl;*/
-    //}
-    //else
-    //{
-    //}
 
-    TRedSeqsACT redSubjSeqs(seqs2);
-    //TRedSeqsACT redSubjSeqs(seqs);
+    //TRedSeqsACT redSubjSeqs(seqs2);
+    TRedSeqsACT redSubjSeqs(seqs);
 
     // TODO: wenn reduziert, dann umwandeln!
 

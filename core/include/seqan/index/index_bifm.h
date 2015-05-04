@@ -106,12 +106,13 @@ struct BiFMReversedText<StringSet<ModifiedString<TText, ModReverse>, TTextConfig
  * suffix array and the LF table, which provides all necessary information for the LF mapping.
  */
 
-template <typename TXXX, typename TXXX2, typename TStringSetConfig, typename TSpec, typename TSpec2, typename TBidirectional>
-class Index<StringSet<ModifiedString<TXXX, TXXX2>, TStringSetConfig>, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec2, TBidirectional> > >
+template <typename TXXX, typename TYYY, typename TStringSetConfig, typename TSpec, typename TSpec2, typename TBidirectional>
+class
+Index<StringSet<ModifiedString<TXXX, TYYY>, TStringSetConfig>, BidirectionalFMIndex<TSpec, FMIndexConfig<TSpec2, TBidirectional> > >
 {
-	typedef typename BiFMReversedText<StringSet<ModifiedString<TXXX, TXXX2>, TStringSetConfig> >::Type								TRevText;
+	typedef StringSet<ModifiedString<TXXX, TYYY>, TStringSetConfig>								TRevText;
 	typedef Index<TRevText, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >							TRevIndex;
-	typedef Index<StringSet<ModifiedString<TXXX, TXXX2>, TStringSetConfig>, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >	TFwdIndex;
+	typedef Index<StringSet<ModifiedString<TXXX, TYYY>, TStringSetConfig>, FMIndex<TSpec, FMIndexConfig<TSpec2, FMBidirectional> > >	TFwdIndex;
 
 	public:
 
@@ -121,10 +122,48 @@ class Index<StringSet<ModifiedString<TXXX, TXXX2>, TStringSetConfig>, Bidirectio
 
 	Index()	{}
 
-	Index(StringSet<ModifiedString<TXXX, TXXX2>, TStringSetConfig> &)
+	Index(StringSet<ModifiedString<TXXX, TYYY>, TStringSetConfig> & text) :
+		//revText(text),
+		rev(revText),
+		fwd(text)
 	{
-		std::cout << "Not implemented yet!" << std::endl;
-		std::cerr << "Not implemented yet!" << std::endl;
+		std::cerr << "Index for reduced alphabet is not implemented yet!" << std::endl;
+		/*typedef ModifiedString<String<TAminoAcidAlph, Alloc<> >, ModView<FunctorConvert<TAminoAcidAlph, TReducedAlph> > > TModString;
+
+
+		typedef StringSet<String<TAminoAcidAlph, Alloc<> >, TStringSetConfig>	TNormalStringSet;
+
+		TNormalStringSet stringSet;
+
+		//std::cout << "Alles okay!" << std::endl;
+		typedef typename Iterator<
+				StringSet<TModString, TStringSetConfig>
+				>::Type TIter;
+		for (TIter it = begin(text); it != end(text); ++it)
+		{
+			String<TAminoAcidAlph, Alloc<> > revString;
+			resize(revString, length(*it));
+
+			typedef typename Iterator<TModString>::Type TStrIter;
+			TStrIter strit = begin(*it);
+			TStrIter stritEnd = end(*it);
+
+			unsigned int z = 0;
+			while (strit != stritEnd)
+			{
+				revString[length(*it) - z - 1] = *strit;
+				++z;
+				++strit;
+			}
+
+			TModString reducedReversedString(revString);
+
+			appendValue(stringSet, revString);
+			appendValue(revText, reducedReversedString);
+			//std::cout << revString << std::endl;
+		}
+		TRevText revText2(stringSet);
+		revText = revText2;*/
 	}
 };
 

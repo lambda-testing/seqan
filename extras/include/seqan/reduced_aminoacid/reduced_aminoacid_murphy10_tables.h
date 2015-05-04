@@ -92,6 +92,14 @@ char const TranslateTableRedAAToAscii_<Murphy10, TVoidSpec>::VALUE[10] =
     'S'  // S T
 };
 
+/*unsigned int
+myOrdValue(SimpleType<unsigned char, ReducedAminoAcid_<Murphy10> > c)
+{
+	if (c == (ReducedAminoAcid_<Murphy10>) 'A')
+		return 1;
+	return 10; // err-case
+}*/
+
 template <typename TVoidSpec>
 char const TranslateTableAsciiToRedAA_<Murphy10, TVoidSpec>::VALUE[256] =
 {

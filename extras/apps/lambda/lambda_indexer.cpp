@@ -27,6 +27,8 @@
 // why is this neccessary?
 #undef SEQAN_HAS_ZLIB
 
+#define LOOKUP_TABLE_SIZE	10*10*10*4
+
 // #define SEQAN_DEBUG_INDEX
 
 // #define PARALLEL_SORT 0

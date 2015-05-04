@@ -26,7 +26,7 @@
 
 #define FASTBUILD
 
-#define LOOKUP_TABLE_SIZE	24*24*24*4
+#define LOOKUP_TABLE_SIZE	10*10*10*4
 
 // #define SEQAN_DEBUG_INDEX
 
@@ -541,7 +541,7 @@ preMain(LambdaOptions      const & options,
 //         }
 //     }
 
-    /*if (indexType == 0)
+    if (indexType == 0)
         return realMain<IndexSa<>>(options,
                                    TFormat(),
                                    TRedAlph(),
@@ -553,11 +553,11 @@ preMain(LambdaOptions      const & options,
                                    TRedAlph(),
                                    TScoreScheme(),
                                    TScoreExtension());
-    else*/
+    else
     if (indexType == 2)
         return realMain<TBidirectionalFMIndex<>>(options,
                                    TFormat(),
-                                   AminoAcid(),/*TRedAlph(),*/
+                                   TRedAlph(),
                                    TScoreScheme(),
                                    TScoreExtension());
     std::cout << "aahhhhhh! " << indexType << std::endl;
@@ -644,79 +644,89 @@ realMain(LambdaOptions      const & options,
     if (ret)
         return ret;
 
+   // std::cout << std::endl << (TRedAlph(0) < TRedAlph(1)) << (TRedAlph(1) < TRedAlph(0)) << std::endl;
 
 
-    unsigned long start3 = std::clock();
-
-
-    /*unsigned long countAminoAcids[24];
-    for (int z = 0; z < 24; ++z)
+    /*unsigned long countAminoAcids[10];
+    for (int z = 0; z < 10; ++z)
     	countAminoAcids[z] = 0;*/
 
     //std::vector<std::vector<unsigned long> > preComputedIndexPos(LOOKUP_TABLE_SIZE);
     unsigned long preComputedIndexPos[LOOKUP_TABLE_SIZE] = { 0 };
 
+
+    /*unsigned long start3 = std::clock();
     typedef typename Size<TRedAlph>::Type TSize;
 	TSize alphSize = ValueSize<TRedAlph>::VALUE;
 
-    typedef typename Iterator<decltype(globalHolder.dbIndex), TopDown<> >::Type TIndexIt;
+	//std::cout << std::endl << alphSize << std::endl;
+
+	typedef typename Iterator<decltype(globalHolder.dbIndex), TopDown<> >::Type TIndexIt;
 	TIndexIt indexIt(globalHolder.dbIndex);
 
 	//unsigned int pos = 0;
-    //for (TSize a = 0; a < alphSize; ++a)
-    //{
-    	//auto vDescA1 = value(indexIt.fwdIter);
-    	//auto vDescA2 = value(indexIt.bwdIter);
-    	//goDown(indexIt.fwdIter, TRedAlph(a));
-
-	for (TSize b = 0; b < alphSize; ++b)
-	{
-		if (goDown(indexIt.fwdIter, TRedAlph(b)))
-		{
-			auto vDescB1 = value(indexIt.fwdIter);
-			auto vDescB2 = value(indexIt.bwdIter);
-			for (TSize c = 0; c < alphSize; ++c)
+    for (TSize a = 0; a < alphSize; ++a)
+    {
+    	if (goDown(indexIt.fwdIter, TRedAlph(a)))
+    	{
+        	auto vDescA1 = value(indexIt.fwdIter);
+        	auto vDescA2 = value(indexIt.bwdIter);
+			for (TSize b = 0; b < alphSize; ++b)
 			{
-				if (goDown(indexIt.fwdIter, TRedAlph(c)))
+				if (goDown(indexIt.fwdIter, TRedAlph(b)))
 				{
-					auto vDescC1 = value(indexIt.fwdIter);
-					auto vDescC2 = value(indexIt.bwdIter);
-					for (TSize d = 0; d < alphSize; ++d)
+					auto vDescB1 = value(indexIt.fwdIter);
+					auto vDescB2 = value(indexIt.bwdIter);
+					for (TSize c = 0; c < alphSize; ++c)
 					{
-						if (goDown(indexIt.fwdIter, TRedAlph(d)))
+						if (goDown(indexIt.fwdIter, TRedAlph(c)))
 						{
-							unsigned int pos = 4*b + 4*24*c + 4*24*24*d;
-							preComputedIndexPos[pos] = indexIt.fwdIter.vDesc.range.i1;
-							preComputedIndexPos[pos+1] = indexIt.fwdIter.vDesc.range.i2;
-							preComputedIndexPos[pos+2] = indexIt.bwdIter.vDesc.range.i1;
-							preComputedIndexPos[pos+3] = indexIt.bwdIter.vDesc.range.i2;
-							value(indexIt.fwdIter) = vDescC1;
-							value(indexIt.bwdIter) = vDescC2;
+							auto vDescC1 = value(indexIt.fwdIter);
+							auto vDescC2 = value(indexIt.bwdIter);
+							for (TSize d = 0; d < alphSize; ++d)
+							{
+								if (goDown(indexIt.fwdIter, TRedAlph(d)))
+								{
+									unsigned int pos = 4*a + 4*10*b + 4*10*10*c + 4*10*10*10*d;
+									preComputedIndexPos[pos] = indexIt.fwdIter.vDesc.range.i1;
+									preComputedIndexPos[pos+1] = indexIt.fwdIter.vDesc.range.i2;
+									preComputedIndexPos[pos+2] = indexIt.bwdIter.vDesc.range.i1;
+									preComputedIndexPos[pos+3] = indexIt.bwdIter.vDesc.range.i2;
+									value(indexIt.fwdIter) = vDescC1;
+									value(indexIt.bwdIter) = vDescC2;
+								}
+								//++pos;
+							}
+							value(indexIt.fwdIter) = vDescB1;
+							value(indexIt.bwdIter) = vDescB2;
 						}
-						//++pos;
-					}
-					value(indexIt.fwdIter) = vDescB1;
-					value(indexIt.bwdIter) = vDescB2;
+						else
+						{
+							//pos += alphSize;
+						}
+					/*}
+					value(indexIt.fwdIter) = vDescA1;
+					value(indexIt.bwdIter) = vDescA2;
 				}
 				else
 				{
-					//pos += alphSize;
+					//pos += alphSize*alpSize;
 				}
 			}
-		}
-		else
-		{
-			//pos += alphSize*alpSize;
-		}
+    	}
+    	else
+    	{
+    		//pos += alphSize*alpSize*alpSize;
+    	}
 		goRoot(indexIt);
-	}
+    }
         	//value(indexIt.fwdIter) = vDescA1;
         	//value(indexIt.fwdIter) = vDescA2;
         //}
         //goRoot(indexIt);
     //}
     std::cout << "Clock-Ticks: " << (std::clock() - start3) << " ... " << ((std::clock() - start3)/CLOCKS_PER_SEC) << std::endl;
-
+*/
 
 
 
@@ -770,7 +780,7 @@ realMain(LambdaOptions      const & options,
             localHolder.init(t);
 
             // seed
-            res = generateSeeds(localHolder/*, countAminoAcids*/);
+            res = generateSeeds(localHolder, /*countAminoAcids, */TRedAlph());
             if (res)
                 continue;
 
@@ -825,9 +835,9 @@ realMain(LambdaOptions      const & options,
 
     std::cout << "Clock-Ticks: " << (std::clock() - start2) << " ... " << ((std::clock() - start2)/CLOCKS_PER_SEC) << std::endl;
 
-    /*std::cout << "-------------------" << std::endl;
+ /*   std::cout << "-------------------" << std::endl;
     unsigned long totalAA = 0;
-    for (int z = 0; z < 24; ++z)
+    for (int z = 0; z < 10; ++z)
     {
     	std::cout << AminoAcid(z) << ": " << countAminoAcids[z] << std::endl;
     	totalAA += countAminoAcids[z];

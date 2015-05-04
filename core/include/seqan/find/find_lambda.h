@@ -263,6 +263,7 @@ inline void find(TLocalHolder & lH,
 		TNeedleRef const needle1 = value(it);
 		_findStateInit(state, text, needle1, threshold, TAlgorithm());
 
+		/*exact 10, one-overlapping
 		if (!atEnd(it+5, needles) &&
 			lH.seedRefs[position(it+0)] == lH.seedRefs[position(it+1)] &&
 			lH.seedRefs[position(it+1)] == lH.seedRefs[position(it+2)] &&
@@ -275,9 +276,9 @@ inline void find(TLocalHolder & lH,
 			it += 5;
 		}
 		else
-		{
+		{*/
 			_findImplSingle(lH, it, state, text, needle1, threshold, TAlgorithm(), preComputedIndexPos);
-		}
+		//}
 		//std::cout << lH.seedRefs[position(it)] << std::endl;
 		//std::cout << lH.seedRefs[position(it)] << std::endl;
     }

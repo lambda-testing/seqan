@@ -492,7 +492,7 @@ struct TranslateTableAAToAscii_
 template <typename T>
 char const TranslateTableAAToAscii_<T>::VALUE[24] = 
 {
-		'S', //23513922
+		/*'S', //23513922
 		'R', //22423676
 		'L', //22232223
 		'A', //15604747
@@ -517,8 +517,8 @@ char const TranslateTableAAToAscii_<T>::VALUE[24] =
 		'B', //0
 		'Z'  //       0
 
-
-		/*'A', // 0 Ala Alanine
+*/
+		'A', // 0 Ala Alanine
 	    'R', // 1 Arg Arginine
 	    'N', // 2 Asn Asparagine
 	    'D', // 3 Asp Aspartic Acid
@@ -542,7 +542,7 @@ char const TranslateTableAAToAscii_<T>::VALUE[24] =
 	    'Z', //21 Glutamic Acid, Glutamine
 	    'X', //22 Unknown
 	    '*'  //23 Terminator
-	                  */
+
 };
 
 template <typename T = void>
